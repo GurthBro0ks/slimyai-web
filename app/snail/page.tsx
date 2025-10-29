@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { Image, BarChart3, Code, HelpCircle, Calculator } from "lucide-react";
+import { Image, BarChart3, Code, HelpCircle, Calculator, Clock } from "lucide-react";
+import { SnailTimeline } from "@/components/snail-timeline";
 
 export default function SnailPage() {
   const tools = [
@@ -47,18 +48,31 @@ export default function SnailPage() {
     <div className="container px-4 py-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold">Snail Tools</h1>
-          <p className="text-muted-foreground">
-            Comprehensive toolkit for Super Snail players
-          </p>
-        </div>
-
-        <Callout variant="warn" className="mb-8">
+	          <h1 className="mb-2 text-4xl font-bold">Snail Dashboard</h1>
+	          <p className="text-muted-foreground">
+	            Your personalized Super Snail command center
+	          </p>
+	        </div>
+	
+	        <div className="grid gap-8 lg:grid-cols-3">
+	          <div className="lg:col-span-2">
+	            <h2 className="text-2xl font-bold mb-4 flex items-center">
+	              <Clock className="h-6 w-6 mr-2 text-neon-green" />
+	              Snail Timeline
+	            </h2>
+	            <Card className="p-6 h-[500px] overflow-y-auto">
+	              <SnailTimeline />
+	            </Card>
+	          </div>
+	
+	          <div className="lg:col-span-1">
+	            <h2 className="text-2xl font-bold mb-4">Quick Tools</h2>
+	            <Callout variant="warn" className="mb-4">
           Connect Admin API to enable all features. Some tools are currently in development.
         </Callout>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tools.map((tool) => (
+	        <div className="grid gap-6">
+	          {tools.map((tool) => (
             <Card
               key={tool.title}
               className={
@@ -87,8 +101,9 @@ export default function SnailPage() {
               </CardContent>
             </Card>
           ))}
-        </div>
-      </div>
-    </div>
+	        </div>
+	      </div>
+	    </div>
+	    </div>
   );
 }

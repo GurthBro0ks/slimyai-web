@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/slimy.config";
+import { UsageBadge } from "@/components/usage-badge";
 
 interface User {
   id: string;
@@ -56,11 +57,12 @@ export function Header({ user, role, loading }: HeaderProps) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
-          {loading ? (
-            <Skeleton className="h-8 w-24" />
-          ) : user ? (
-            <div className="flex items-center gap-3">
+	        <div className="flex items-center gap-4">
+	          <UsageBadge />
+	          {loading ? (
+	            <Skeleton className="h-8 w-24" />
+	          ) : user ? (
+	            <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground hidden sm:inline">
                 {user.name}
               </span>
