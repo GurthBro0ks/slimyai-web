@@ -7,22 +7,26 @@ import { CopyBox } from "@/components/ui/copy-box";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Callout } from "@/components/ui/callout";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Search, Flag } from "lucide-react";
 
 interface Code {
   code: string;
-  source: "snelp" | "reddit" | "sample";
+  source: "snelp" | "reddit";
   ts: string;
-  tags?: string[];
-  expires?: string | null;
-  region?: string | null;
+  tags: string[];
+  expires: string | null;
+  region: string;
+  description?: string;
 }
 
 export default function CodesPage() {
   const [codes, setCodes] = useState<Code[]>([]);
+  const [filteredCodes, setFilteredCodes] = useState<Code[]>([]);
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<"active" | "past7" | "all">("active");
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [reportingCode, setReportingCode] = useState<string | null>(null);
 
   const fetchCodes = async (hardRefresh = false) => {
     if (hardRefresh) setRefreshing(true);
@@ -48,7 +52,53 @@ export default function CodesPage() {
     fetchCodes();
   }, [scope]);
 
-  const allCodesText = codes.map((c) => c.code).join("\n");
+  // Client-side search filtering
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredCodes(codes);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = codes.filter((code) => {
+      return (
+        code.code.toLowerCase().includes(query) ||
+        code.description?.toLowerCase().includes(query) ||
+        code.tags.some((tag) => tag.toLowerCase().includes(query)) ||
+        code.source.toLowerCase().includes(query)
+      );
+    });
+
+    setFilteredCodes(filtered);
+  }, [searchQuery, codes]);
+
+  const handleReportCode = async (code: string) => {
+    setReportingCode(code);
+
+    try {
+      const response = await fetch("/api/codes/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code,
+          reason: "dead",
+          guildId: "web",
+          userId: "anonymous",
+        }),
+      });
+
+      if (response.ok) {
+        console.info("Code reported:", code);
+        // Show success feedback
+        setTimeout(() => setReportingCode(null), 1000);
+      }
+    } catch (error) {
+      console.error("Failed to report code:", error);
+      setReportingCode(null);
+    }
+  };
+
+  const allCodesText = filteredCodes.map((c) => c.code).join("\n");
 
   const getSourceBadge = (source: Code["source"]) => {
     switch (source) {
@@ -56,8 +106,6 @@ export default function CodesPage() {
         return <Badge variant="default">Snelp</Badge>;
       case "reddit":
         return <Badge variant="secondary">Reddit</Badge>;
-      default:
-        return <Badge variant="outline">Sample</Badge>;
     }
   };
 
@@ -71,11 +119,7 @@ export default function CodesPage() {
           </p>
         </div>
 
-        <Callout variant="info" className="mb-6">
-          Connect Admin API to enable live code updates. Currently showing sample data.
-        </Callout>
-
-        <div className="mb-6 flex flex-wrap items-center gap-4">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-2">
             <Button
               variant={scope === "active" ? "neon" : "outline"}
@@ -110,6 +154,28 @@ export default function CodesPage() {
           </Button>
         </div>
 
+        {/* Search Box */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search codes, descriptions, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-md border bg-background px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neon-green"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
         {loading ? (
           <div className="space-y-4">
             <Skeleton className="h-32 w-full" />
@@ -122,7 +188,8 @@ export default function CodesPage() {
               <CardHeader>
                 <CardTitle>Copy All Codes</CardTitle>
                 <CardDescription>
-                  {codes.length} code{codes.length !== 1 ? "s" : ""} available
+                  {filteredCodes.length} code{filteredCodes.length !== 1 ? "s" : ""} available
+                  {searchQuery && ` (filtered from ${codes.length})`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -130,42 +197,63 @@ export default function CodesPage() {
               </CardContent>
             </Card>
 
-            <div className="space-y-4">
-              {codes.map((code, index) => (
-                <Card key={`${code.code}-${index}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="font-mono text-lg">
-                          {code.code}
-                        </CardTitle>
-                        <CardDescription>
-                          Added {new Date(code.ts).toLocaleDateString()}
-                        </CardDescription>
+            {filteredCodes.length === 0 ? (
+              <Callout variant="warn">
+                No codes found matching &quot;{searchQuery}&quot;
+              </Callout>
+            ) : (
+              <div className="space-y-4">
+                {filteredCodes.map((code, index) => (
+                  <Card key={`${code.code}-${index}`}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="font-mono text-lg">
+                            {code.code}
+                          </CardTitle>
+                          <CardDescription>
+                            Added {new Date(code.ts).toLocaleDateString()}
+                            {code.description && ` • ${code.description}`}
+                          </CardDescription>
+                        </div>
+                        <div className="flex gap-2">
+                          {getSourceBadge(code.source)}
+                        </div>
                       </div>
-                      {getSourceBadge(code.source)}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {code.region && (
-                        <Badge variant="outline">{code.region.toUpperCase()}</Badge>
-                      )}
-                      {code.expires && (
-                        <Badge variant="destructive">
-                          Expires {new Date(code.expires).toLocaleDateString()}
-                        </Badge>
-                      )}
-                      {code.tags?.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {code.region && (
+                            <Badge variant="outline">{code.region.toUpperCase()}</Badge>
+                          )}
+                          {code.expires && (
+                            <Badge variant="destructive">
+                              Expires {new Date(code.expires).toLocaleDateString()}
+                            </Badge>
+                          )}
+                          {code.tags?.map((tag) => (
+                            <Badge key={tag} variant="secondary">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReportCode(code.code)}
+                          disabled={reportingCode === code.code}
+                          className="text-xs"
+                        >
+                          <Flag className="h-3 w-3 mr-1" />
+                          {reportingCode === code.code ? "Reported" : "Report Dead"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
