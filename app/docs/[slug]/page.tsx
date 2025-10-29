@@ -40,12 +40,12 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       },
     });
 
+    const title = frontmatter?.title ? String(frontmatter.title) : null;
+
     return (
       <div>
-        {frontmatter?.title && (
-          <h1 className="mb-8 text-4xl font-bold">{frontmatter.title as string}</h1>
-        )}
-        {content}
+        {title && <h1 className="mb-8 text-4xl font-bold">{title}</h1>}
+        <div>{content}</div>
       </div>
     );
   } catch (error) {
