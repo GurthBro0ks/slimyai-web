@@ -1,0 +1,49 @@
+name: Docs Sync
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [docs-updated]
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - run: pnpm install
+
+      - name: Import docs
+        run: pnpm docs:import
+        env:
+          DOCS_SOURCE_REPO: ${{ secrets.DOCS_SOURCE_REPO }}
+          DOCS_SOURCE_PATH: ${{ secrets.DOCS_SOURCE_PATH }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: sync from source"
+          title: "docs: sync from source"
+          body: |
+            Automated docs sync from source repository.
+            
+            - Imported docs from ${{ secrets.DOCS_SOURCE_REPO || 'current repo' }}
+            - Source path: ${{ secrets.DOCS_SOURCE_PATH || 'docs' }}
+          branch: docs-sync
+          delete-branch: true
