@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getMockRawStats, scrubStats } from "@/lib/stats-scrubber";
 import { isExperimentEnabled } from "@/lib/feature-flags";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 // Mock data for demonstration
 const MOCK_GUILD_ID = "123456789";

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Calculator, BarChart3, MessageSquare, Shield } from "lucide-react";
@@ -33,6 +34,15 @@ export default function HomePage() {
     <div className="container px-4 py-16">
       {/* Hero Section */}
       <section className="mx-auto max-w-4xl text-center">
+        <div className="mb-8 flex justify-center">
+          <Image 
+            src="/images/logo.svg" 
+            alt="Slimy.ai Logo" 
+            width={120} 
+            height={120}
+            className="w-24 h-24 sm:w-32 sm:h-32"
+          />
+        </div>
         <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl">
           Meet <span className="text-neon-green">Slimy.ai</span>
         </h1>

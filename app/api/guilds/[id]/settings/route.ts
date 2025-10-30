@@ -9,10 +9,10 @@ export const runtime = "nodejs";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const guildId = params.id;
+    const { id: guildId } = await params;
     const flags = getGuildFlags(guildId);
 
     // Only expose relevant settings for the client
@@ -40,10 +40,10 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const guildId = params.id;
+    const { id: guildId } = await params;
     const body: { publicStatsEnabled?: boolean } = await request.json();
 
     // TODO: Implement server-side role verification (must be admin)

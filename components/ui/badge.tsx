@@ -18,6 +18,7 @@ const badgeVariants = cva(
         admin: "border-transparent bg-neon-purple text-white",
         club: "border-transparent bg-blue-600 text-white",
         user: "border-transparent bg-gray-600 text-white",
+        neon: "border-transparent bg-neon-green text-black font-bold",
       },
     },
     defaultVariants: {

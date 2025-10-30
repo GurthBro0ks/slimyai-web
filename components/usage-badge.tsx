@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
@@ -18,7 +18,7 @@ const levelText: Record<UsageLevel, string> = {
   over_cap: "Usage Cap Reached",
 };
 
-const statusIcons: Record<UsageData["modelProbeStatus"], JSX.Element> = {
+const statusIcons: Record<UsageData["modelProbeStatus"], React.ReactElement> = {
   ok: <CheckCircle className="h-3 w-3 text-neon-green" />,
   soft_cap: <AlertTriangle className="h-3 w-3 text-yellow-500" />,
   hard_cap: <XCircle className="h-3 w-3 text-red-500" />,

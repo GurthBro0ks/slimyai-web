@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,13 @@ export function Header({ user, role, loading }: HeaderProps) {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
+            <Image 
+              src="/images/logo.svg" 
+              alt="Slimy.ai Logo" 
+              width={40} 
+              height={40}
+              className="w-10 h-10"
+            />
             <span className="text-2xl font-bold text-neon-green">Slimy.ai</span>
           </Link>
           <nav className="hidden md:flex gap-6">
