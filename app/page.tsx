@@ -83,6 +83,15 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="mx-auto mt-24 max-w-4xl rounded-lg border border-neon-green/20 bg-card p-12 text-center">
+        <div className="mb-8 flex justify-center">
+          <Image 
+            src="/images/logo.svg" 
+            alt="Slimy.ai Logo" 
+            width={300} 
+            height={300}
+            className="w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80"
+          />
+        </div>
         <h2 className="mb-4 text-3xl font-bold">Ready to get started?</h2>
         <p className="mb-6 text-muted-foreground">
           Join thousands of Super Snail players using Slimy.ai to level up their game.
