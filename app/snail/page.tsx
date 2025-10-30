@@ -48,62 +48,63 @@ export default function SnailPage() {
     <div className="container px-4 py-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
-	          <h1 className="mb-2 text-4xl font-bold">Snail Dashboard</h1>
-	          <p className="text-muted-foreground">
-	            Your personalized Super Snail command center
-	          </p>
-	        </div>
-	
-	        <div className="grid gap-8 lg:grid-cols-3">
-	          <div className="lg:col-span-2">
-	            <h2 className="text-2xl font-bold mb-4 flex items-center">
-	              <Clock className="h-6 w-6 mr-2 text-neon-green" />
-	              Snail Timeline
-	            </h2>
-	            <Card className="p-6 h-[500px] overflow-y-auto">
-	              <SnailTimeline />
-	            </Card>
-	          </div>
-	
-	          <div className="lg:col-span-1">
-	            <h2 className="text-2xl font-bold mb-4">Quick Tools</h2>
-	            <Callout variant="warn" className="mb-4">
-          Connect Admin API to enable all features. Some tools are currently in development.
-        </Callout>
+          <h1 className="mb-2 text-4xl font-bold">Snail Dashboard</h1>
+          <p className="text-muted-foreground">
+            Your personalized Super Snail command center
+          </p>
+        </div>
 
-	        <div className="grid gap-6">
-	          {tools.map((tool) => (
-            <Card
-              key={tool.title}
-              className={
-                tool.available
-                  ? "border-neon-green/20 hover:border-neon-green/50 transition-colors"
-                  : "opacity-60"
-              }
-            >
-              <CardHeader>
-                <tool.icon className="h-10 w-10 text-neon-green mb-2" />
-                <CardTitle>{tool.title}</CardTitle>
-                <CardDescription>{tool.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {tool.available ? (
-                  <Link href={tool.href}>
-                    <Button variant="neon" className="w-full">
-                      Open Tool
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                )}
-              </CardContent>
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold mb-4 flex items-center">
+              <Clock className="h-6 w-6 mr-2 text-neon-green" />
+              Snail Timeline
+            </h2>
+            <Card className="p-6 h-[500px] overflow-y-auto">
+              <SnailTimeline />
             </Card>
-          ))}
-	        </div>
-	      </div>
-	    </div>
-	    </div>
+          </div>
+
+          <div className="lg:col-span-1">
+            <h2 className="text-2xl font-bold mb-4">Quick Tools</h2>
+            <Callout variant="warn" className="mb-4">
+              Connect Admin API to enable all features. Some tools are currently in development.
+            </Callout>
+
+            <div className="grid gap-6">
+              {tools.map((tool) => (
+                <Card
+                  key={tool.title}
+                  className={
+                    tool.available
+                      ? "border-neon-green/20 hover:border-neon-green/50 transition-colors"
+                      : "opacity-60"
+                  }
+                >
+                  <CardHeader>
+                    <tool.icon className="h-10 w-10 text-neon-green mb-2" />
+                    <CardTitle>{tool.title}</CardTitle>
+                    <CardDescription>{tool.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {tool.available ? (
+                      <Link href={tool.href}>
+                        <Button variant="neon" className="w-full">
+                          Open Tool
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="outline" className="w-full" disabled>
+                        Coming Soon
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
