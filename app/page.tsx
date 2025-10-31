@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Calculator, BarChart3, MessageSquare, Shield } from "lucide-react";
+import { Bot, BarChart3, MessageSquare, Shield } from "lucide-react";
 
 export default function HomePage() {
   const adminApiBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE;

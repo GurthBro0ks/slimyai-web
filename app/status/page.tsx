@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function StatusPage() {
   ]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const checkStatus = async () => {
+  const checkStatus = useCallback(async () => {
     setRefreshing(true);
     
     // Check if Admin API is configured
@@ -109,11 +109,11 @@ export default function StatusPage() {
     }
 
     setRefreshing(false);
-  };
+  }, []);
 
   useEffect(() => {
     checkStatus();
-  }, []);
+  }, [checkStatus]);
 
   const getStatusIcon = (status: ServiceStatus["status"]) => {
     switch (status) {

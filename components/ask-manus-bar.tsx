@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, MessageSquare, Copy, Link as LinkIcon, ExternalLink } from "lucide-react";
+import { Send, MessageSquare, Copy, ExternalLink } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { ChatAction, ChatResponse } from "@/lib/chat-actions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Mock function to get current page context
-const getPageContext = () => {
+// Hook to get current page context
+const usePageContext = () => {
   const pathname = usePathname();
   return {
     guildId: "mock-guild-123",
@@ -28,7 +28,7 @@ export function AskManusBar() {
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const context = getPageContext();
+  const context = usePageContext();
 
   useEffect(() => {
     if (isOpen) {
@@ -66,7 +66,7 @@ export function AskManusBar() {
 
       const data = await apiResponse.json();
       setResponse(data);
-    } catch (err) {
+    } catch {
       setError("Network error. Could not connect to the chat service.");
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export function AskManusBar() {
     const Icon = action.type === "copy" ? Copy : action.type === "link" ? ExternalLink : Send;
 
     const buttonProps = {
-      variant: action.type === "copy" ? "outline" : "neon" as "outline" | "neon",
+      variant: (action.type === "copy" ? "outline" : "neon") as const,
       size: "sm" as "sm",
       className: "h-8",
       onClick: action.type !== "link" ? () => handleAction(action) : undefined,

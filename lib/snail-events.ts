@@ -23,7 +23,7 @@ const MAX_EVENTS = 50;
 export function getLatestSnailEvents(): SnailEvent[] {
   try {
     const content = readFileSync(EVENTS_FILE, "utf-8");
-    let events: SnailEvent[] = JSON.parse(content);
+    const events: SnailEvent[] = JSON.parse(content);
 
     // Sort by timestamp (newest first)
     events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
