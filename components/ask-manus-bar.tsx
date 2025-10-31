@@ -89,9 +89,14 @@ export function AskManusBar() {
   const renderAction = (action: ChatAction, index: number) => {
     const Icon = action.type === "copy" ? Copy : action.type === "link" ? ExternalLink : Send;
 
-    const buttonProps = {
-      variant: (action.type === "copy" ? "outline" : "neon") as const,
-      size: "sm" as "sm",
+    const buttonProps: {
+      variant: "outline" | "neon";
+      size: "sm";
+      className: string;
+      onClick?: () => void;
+    } = {
+      variant: action.type === "copy" ? "outline" : "neon",
+      size: "sm",
       className: "h-8",
       onClick: action.type !== "link" ? () => handleAction(action) : undefined,
     };
