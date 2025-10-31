@@ -16,18 +16,17 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <Callout variant="warn" className="mb-8">
-          Real-time chat requires WebSocket connection. Use Discord for now.
-        </Callout>
-
-        <Card>
+        <Card className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
           <CardHeader>
             <CardTitle>Chat Interface</CardTitle>
             <CardDescription>
-              Chat with Slimy.ai using various personality modes
+              Chat with slimy.ai using various personality modes
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <Callout variant="note" className="text-sm">
+              Web chat is coming; use Discord for now.
+            </Callout>
             <p className="text-sm text-muted-foreground">
               Chat interface coming soon. For now, use the Discord bot for conversations.
             </p>

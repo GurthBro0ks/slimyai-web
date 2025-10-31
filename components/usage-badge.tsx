@@ -49,7 +49,12 @@ export function UsageBadge() {
   }, []);
 
   if (loading || !usage) {
-    return <Badge variant="secondary">Loading Usage...</Badge>;
+    return (
+      <Badge variant="secondary" className="cursor-pointer">
+        <span className="md:hidden">•</span>
+        <span className="hidden md:inline">Loading...</span>
+      </Badge>
+    );
   }
 
   const percentage = Math.round((usage.currentSpend / usage.limit) * 100);
@@ -80,7 +85,7 @@ export function UsageBadge() {
         <TooltipTrigger asChild>
           <Badge variant={levelColors[usage.level]} className="cursor-pointer">
             <span className="mr-1">{statusIcons[usage.modelProbeStatus]}</span>
-            {levelText[usage.level]}
+            <span className="hidden md:inline">Usage: {percentage}%</span>
           </Badge>
         </TooltipTrigger>
         <TooltipContent className="bg-card border-border text-foreground">

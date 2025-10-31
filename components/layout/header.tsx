@@ -40,12 +40,12 @@ export function Header({ user, role, loading }: HeaderProps) {
           <Link href="/" className="flex items-center space-x-2">
             <Image 
               src="/images/logo.svg" 
-              alt="Slimy.ai Logo" 
+              alt="slimy.ai Logo" 
               width={40} 
               height={40}
               className="w-10 h-10"
             />
-            <span className="text-2xl font-bold text-neon-green">Slimy.ai</span>
+            <span className="text-2xl font-bold text-neon-green">slimy.ai</span>
           </Link>
           <nav className="hidden md:flex gap-6">
             {navItems.map((item) => (
@@ -88,7 +88,8 @@ export function Header({ user, role, loading }: HeaderProps) {
           ) : (
             <Link href={adminApiBase ? `${adminApiBase}/api/auth/login` : "#"}>
               <Button variant="neon" size="sm">
-                Login with Discord
+                <span className="md:hidden">Login</span>
+                <span className="hidden md:inline">Login with Discord</span>
               </Button>
             </Link>
           )}

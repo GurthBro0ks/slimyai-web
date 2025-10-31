@@ -13,12 +13,12 @@ export default function ClubPage() {
           </p>
         </div>
 
-        <Callout variant="info" className="mb-8">
+        <Callout variant="note" className="mb-6 text-sm">
           Connect Admin API to enable club analytics features.
         </Callout>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Card className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
             <CardHeader>
               <Upload className="h-10 w-10 text-neon-green mb-2" />
               <CardTitle>Upload Screens</CardTitle>
@@ -31,7 +31,7 @@ export default function ClubPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
             <CardHeader>
               <BarChart3 className="h-10 w-10 text-neon-green mb-2" />
               <CardTitle>Analytics</CardTitle>
@@ -44,7 +44,7 @@ export default function ClubPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
             <CardHeader>
               <Users className="h-10 w-10 text-neon-green mb-2" />
               <CardTitle>Member Stats</CardTitle>
