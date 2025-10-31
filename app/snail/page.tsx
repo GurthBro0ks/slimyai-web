@@ -60,41 +60,41 @@ export default function SnailPage() {
               <Clock className="h-6 w-6 mr-2 text-neon-green" />
               Snail Timeline
             </h2>
-            <Card className="p-6 h-[500px] overflow-y-auto">
+            <Card className="p-6 h-[500px] overflow-y-auto rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
               <SnailTimeline />
             </Card>
           </div>
 
           <div className="lg:col-span-1">
             <h2 className="text-2xl font-bold mb-4">Quick Tools</h2>
-            <Callout variant="warn" className="mb-4">
+            <Callout variant="note" className="mb-4 text-sm">
               Connect Admin API to enable all features. Some tools are currently in development.
             </Callout>
 
-            <div className="grid gap-6">
+            <div className="grid gap-4">
               {tools.map((tool) => (
                 <Card
                   key={tool.title}
                   className={
                     tool.available
-                      ? "border-neon-green/20 hover:border-neon-green/50 transition-colors"
-                      : "opacity-60"
+                      ? "rounded-2xl border border-emerald-500/30 bg-zinc-900/40 hover:bg-zinc-900/60 transition-colors shadow-sm"
+                      : "rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm opacity-60"
                   }
                 >
-                  <CardHeader>
-                    <tool.icon className="h-10 w-10 text-neon-green mb-2" />
-                    <CardTitle>{tool.title}</CardTitle>
-                    <CardDescription>{tool.description}</CardDescription>
+                  <CardHeader className="p-4">
+                    <tool.icon className="h-8 w-8 text-neon-green mb-2" />
+                    <CardTitle className="text-base">{tool.title}</CardTitle>
+                    <CardDescription className="text-xs">{tool.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 pt-0">
                     {tool.available ? (
                       <Link href={tool.href}>
-                        <Button variant="neon" className="w-full">
+                        <Button variant="neon" size="sm" className="w-full">
                           Open Tool
                         </Button>
                       </Link>
                     ) : (
-                      <Button variant="outline" className="w-full" disabled>
+                      <Button variant="outline" size="sm" className="w-full" disabled aria-disabled="true">
                         Coming Soon
                       </Button>
                     )}
