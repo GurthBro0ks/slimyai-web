@@ -105,9 +105,9 @@ export default function FeaturesPage() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           {features.map((feature) => (
-            <Card key={feature.title} className="border-neon-green/20">
+            <Card key={feature.title} className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 hover:bg-zinc-900/60 transition-colors shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <feature.icon className="h-8 w-8 text-neon-green" />
