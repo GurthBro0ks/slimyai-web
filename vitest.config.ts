@@ -7,6 +7,11 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    setupFiles: ["./tests/setup.ts"],
+    exclude: [
+      "tests/e2e/**",
+      "playwright.config.{ts,js,mjs,cjs}",
+    ],
   },
   resolve: {
     alias: {

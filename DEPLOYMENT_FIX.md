@@ -187,8 +187,13 @@ Then rebuild and redeploy.
 The issue is that the web app is trying to use Discord OAuth for authentication, which requires:
 
 1. **Admin API Backend** - A separate service that handles Discord OAuth flow
-2. **Proper environment variables** - `NEXT_PUBLIC_ADMIN_API_BASE` pointing to the admin API
-3. **Reverse proxy configuration** - Caddy routing `/api/*` to the admin API
+2. **Proper environment variables** - `NEXT_PUBLIC_ADMIN_API_BASE` pointing to the admin API, and the admin API's own Discord credentials:
+   ```bash
+   DISCORD_CLIENT_ID=your_discord_client_id
+   DISCORD_CLIENT_SECRET=your_discord_client_secret
+   DISCORD_BOT_TOKEN=your_discord_bot_token
+   ```
+3. **Reverse proxy configuration** - Caddy routing `/api/auth/*`, `/api/guilds/*`, `/api/diag`, `/api/health` to the admin API
 
 **Current State:**
 - ✅ Web app deployed on port 3001

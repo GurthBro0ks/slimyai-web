@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,9 @@ export default function FlagsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const fetchFlags = async () => {
+  const fetchFlags = useCallback(async () => {
+    if (!guildId) return;
+
     setLoading(true);
     try {
       const response = await fetch(`/api/guilds/${guildId}/flags`);
@@ -41,20 +43,18 @@ export default function FlagsAdminPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (guildId) {
-      fetchFlags();
-    }
   }, [guildId]);
 
-  const updateFlag = async (path: string, value: any) => {
+  useEffect(() => {
+    fetchFlags();
+  }, [fetchFlags]);
+
+  const updateFlag = async (path: string, value: boolean | string) => {
     setSaving(true);
     setMessage(null);
 
     try {
-      const updates: any = {};
+      const updates: Record<string, Record<string, boolean | string>> = {};
       const [section, key] = path.split(".");
 
       if (section === "theme") {

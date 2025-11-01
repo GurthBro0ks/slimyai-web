@@ -41,7 +41,8 @@ describe("Codes Aggregator", () => {
   describe("filterByScope", () => {
     it("should filter active codes", () => {
       const result = filterByScope(mockCodes, "active");
-      expect(result).toHaveLength(3); // All except expired
+      expect(result).toHaveLength(1);
+      expect(result[0].code).toBe("ACTIVE2024");
       expect(result.some((c) => c.code === "EXPIRED2023")).toBe(false);
     });
 

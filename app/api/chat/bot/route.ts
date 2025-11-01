@@ -7,6 +7,15 @@ export const runtime = "nodejs";
 const CHAT_LIMIT = 5; // 5 requests
 const CHAT_WINDOW = 60 * 1000; // per minute
 
+interface ChatBotRequest {
+  guildId: string;
+  route: string;
+  role: string;
+  filters: Record<string, unknown>;
+  pageSummary: string;
+  userAsk: string;
+}
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "anonymous";
   const rateLimitKey = `chat:${ip}`;
@@ -30,14 +39,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body: {
-      guildId: string;
-      route: string;
-      role: string;
-      filters: any;
-      pageSummary: string;
-      userAsk: string;
-    } = await request.json();
+    const body: ChatBotRequest = await request.json();
 
     const response = generateMockChatResponse(body.userAsk);
 

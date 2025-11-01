@@ -34,6 +34,16 @@ export async function GET(
   }
 }
 
+interface GuildFlagsUpdate {
+  experiments?: {
+    publicStats?: boolean;
+  };
+  theme?: {
+    colorPrimary?: string;
+    badgeStyle?: "rounded" | "square" | "pill";
+  };
+}
+
 /**
  * PATCH /api/guilds/:id/settings
  * Update guild settings (requires admin role)
@@ -49,7 +59,7 @@ export async function PATCH(
     // TODO: Implement server-side role verification (must be admin)
     // For now, assume admin role for simplicity
 
-    const updates: any = {};
+    const updates: GuildFlagsUpdate = {};
     if (typeof body.publicStatsEnabled === "boolean") {
       updates.experiments = { publicStats: body.publicStatsEnabled };
     }

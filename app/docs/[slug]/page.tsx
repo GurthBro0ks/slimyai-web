@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
-import { useMDXComponents } from "@/components/mdx-components";
+import { baseMDXComponents } from "@/components/mdx-components";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import rehypeSlug from "rehype-slug";
@@ -20,14 +20,14 @@ export async function generateStaticParams() {
 
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
+
   try {
     const filePath = join(DOCS_DIR, `${slug}.mdx`);
     const source = readFileSync(filePath, "utf-8");
 
     const { content, frontmatter } = await compileMDX({
       source,
-      components: useMDXComponents({}),
+      components: baseMDXComponents,
       options: {
         parseFrontmatter: true,
         mdxOptions: {

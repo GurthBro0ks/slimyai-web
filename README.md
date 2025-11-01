@@ -12,6 +12,7 @@ Production-ready website for Slimy.ai Discord bot with Admin API integration, co
 - **Testing** - Vitest (unit) and Playwright (e2e)
 - **CI/CD** - GitHub Actions for lint, test, build, and docs sync
 - **Docker** - Production-ready containerization
+- **Mobile Polish v1** - Responsive design with unified cards, compact callouts, and optimized mobile navigation
 
 ## Quick Start
 
@@ -97,6 +98,22 @@ Features:
 - Link rewriting
 - Auto-generated sidebar
 
+## UI Guidelines
+
+This project uses a unified design system for consistency across pages:
+
+### Cards
+- **Unified cards** with consistent spacing and styling via `components/ui/card.tsx`
+- Use `Card`, `CardHeader`, `CardTitle`, `CardDescription`, and `CardContent` components
+- Mobile-optimized with proper touch targets and spacing
+
+### Callouts
+- **Compact callouts** for inline notes and warnings via `components/ui/callout.tsx`
+- Variants: `info` (default), `success`, `warn`, `error`
+- Example: `<Callout variant="warn">Warning message</Callout>`
+
+See [docs/ui-guidelines.md](./docs/ui-guidelines.md) for detailed usage.
+
 ## Testing
 
 ```bash
@@ -106,6 +123,8 @@ pnpm test
 # E2E tests
 pnpm test:e2e
 ```
+
+Test environment uses `jsdom` for DOM rendering and `@testing-library/react` for component testing.
 
 ## Deployment
 

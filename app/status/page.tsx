@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,32 +21,32 @@ export default function StatusPage() {
   ]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const checkStatus = async () => {
+  const checkStatus = useCallback(async () => {
     setRefreshing(true);
-    
+
     // Check Admin API
     try {
       const start = Date.now();
       const res = await fetch("/api/diag");
       const responseTime = Date.now() - start;
-      
+
       if (res.ok) {
         const data = await res.json();
-        setServices(prev => prev.map(s => 
-          s.name === "Admin API" 
+        setServices(prev => prev.map(s =>
+          s.name === "Admin API"
             ? { ...s, status: "healthy", message: data.message || "Operational", responseTime }
             : s
         ));
       } else {
-        setServices(prev => prev.map(s => 
-          s.name === "Admin API" 
+        setServices(prev => prev.map(s =>
+          s.name === "Admin API"
             ? { ...s, status: "down", message: "Service unavailable" }
             : s
         ));
       }
-    } catch (error) {
-      setServices(prev => prev.map(s => 
-        s.name === "Admin API" 
+    } catch {
+      setServices(prev => prev.map(s =>
+        s.name === "Admin API"
           ? { ...s, status: "down", message: "Connection failed" }
           : s
       ));
@@ -57,35 +57,36 @@ export default function StatusPage() {
       const start = Date.now();
       const res = await fetch("/api/codes?scope=active");
       const responseTime = Date.now() - start;
-      
+
       if (res.ok) {
         const data = await res.json();
-        setServices(prev => prev.map(s => 
-          s.name === "Codes Aggregator" 
+        setServices(prev => prev.map(s =>
+          s.name === "Codes Aggregator"
             ? { ...s, status: "healthy", message: `${data.codes?.length || 0} codes available`, responseTime }
             : s
         ));
       } else {
-        setServices(prev => prev.map(s => 
-          s.name === "Codes Aggregator" 
+        setServices(prev => prev.map(s =>
+          s.name === "Codes Aggregator"
             ? { ...s, status: "degraded", message: "Partial data available" }
             : s
         ));
       }
-    } catch (error) {
-      setServices(prev => prev.map(s => 
-        s.name === "Codes Aggregator" 
+    } catch {
+      setServices(prev => prev.map(s =>
+        s.name === "Codes Aggregator"
           ? { ...s, status: "down", message: "Connection failed" }
           : s
       ));
     }
 
     setRefreshing(false);
-  };
+  }, []); // No external dependencies needed
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkStatus();
-  }, []);
+  }, [checkStatus]);
 
   const getStatusIcon = (status: ServiceStatus["status"]) => {
     switch (status) {

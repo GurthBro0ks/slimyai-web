@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CopyBox } from "@/components/ui/copy-box";
@@ -28,14 +28,14 @@ export default function CodesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [reportingCode, setReportingCode] = useState<string | null>(null);
 
-  const fetchCodes = async (hardRefresh = false) => {
+  const fetchCodes = useCallback(async (hardRefresh = false) => {
     if (hardRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
       const cache = hardRefresh ? "no-cache" : "default";
       const response = await fetch(`/api/codes?scope=${scope}`, { cache });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCodes(data.codes || []);
@@ -46,11 +46,11 @@ export default function CodesPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [scope]);
 
   useEffect(() => {
     fetchCodes();
-  }, [scope]);
+  }, [fetchCodes]);
 
   // Client-side search filtering
   useEffect(() => {

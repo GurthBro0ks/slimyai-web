@@ -1,0 +1,37 @@
+name: Docs Sync
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install
+        run: pnpm i --frozen-lockfile || pnpm i
+      - name: Import docs
+        env:
+          DOCS_SOURCE_REPO: ${{ vars.DOCS_SOURCE_REPO || env.DOCS_SOURCE_REPO }}
+          DOCS_SOURCE_PATH: ${{ vars.DOCS_SOURCE_PATH || env.DOCS_SOURCE_PATH }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "DOCS_SOURCE_REPO=${DOCS_SOURCE_REPO}" >> $GITHUB_ENV
+          echo "DOCS_SOURCE_PATH=${DOCS_SOURCE_PATH}" >> $GITHUB_ENV
+          pnpm docs:import || pnpm docs:check || echo "Docs import skipped"
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "docs: sync from source"
+          title: "docs: sync from source"
+          branch: "chore/docs-sync"
+          delete-branch: true

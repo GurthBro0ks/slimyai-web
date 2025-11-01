@@ -1,0 +1,99 @@
+name: Aggregate Codes (Scheduled)
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm build
+
+      - name: Run codes aggregation
+        id: aggregate
+        env:
+          # API-first sources (required)
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_CODES_CHANNEL_IDS: ${{ secrets.DISCORD_CODES_CHANNEL_IDS }}
+
+          # Optional sources
+          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+          NEXT_PUBLIC_SNELP_CODES_URL: ${{ secrets.NEXT_PUBLIC_SNELP_CODES_URL }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          USER_AGENT: ${{ vars.USER_AGENT }}
+        run: |
+          pnpm codes:aggregate 2>&1 | tee aggregate.log
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "## 🎮 Codes Aggregation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat aggregate.log >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f data/codes/index.json ]; then
+            TOTAL=$(jq '.codes | length' data/codes/index.json)
+            VERIFIED=$(jq '[.codes[] | select(.verified == true)] | length' data/codes/index.json)
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Total codes:** $TOTAL" >> $GITHUB_STEP_SUMMARY
+            echo "✓ **Verified codes:** $VERIFIED" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codes-${{ github.run_number }}
+          path: |
+            data/codes/index.json
+            data/codes/snapshots/*.json
+          retention-days: 30
+
+      - name: Check for failures
+        if: steps.aggregate.outputs.exit_code != '0'
+        run: |
+          echo "::warning::Aggregation completed with errors (exit code: ${{ steps.aggregate.outputs.exit_code }})"
+          # Exit 0 to allow soft-fail (some sources may be down)
+          exit 0

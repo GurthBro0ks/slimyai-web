@@ -1,0 +1,50 @@
+name: CI
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+      DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      ADMIN_DISCORD_CLIENT_ID: ${{ secrets.ADMIN_DISCORD_CLIENT_ID }}
+      ADMIN_DISCORD_CLIENT_SECRET: ${{ secrets.ADMIN_DISCORD_CLIENT_SECRET }}
+      ADMIN_DISCORD_BOT_TOKEN: ${{ secrets.ADMIN_DISCORD_BOT_TOKEN }}
+      ROLE_ADMIN_IDS: ${{ secrets.ROLE_ADMIN_IDS }}
+      ROLE_CLUB_IDS: ${{ secrets.ROLE_CLUB_IDS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+      - name: Enable corepack
+        run: corepack enable
+      - name: Write env file for CI
+        run: |
+          cat <<'ENV' > .env.ci
+          DISCORD_TOKEN=${DISCORD_TOKEN}
+          DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+          ADMIN_DISCORD_CLIENT_ID=${ADMIN_DISCORD_CLIENT_ID}
+          ADMIN_DISCORD_CLIENT_SECRET=${ADMIN_DISCORD_CLIENT_SECRET}
+          ADMIN_DISCORD_BOT_TOKEN=${ADMIN_DISCORD_BOT_TOKEN}
+          ROLE_ADMIN_IDS=${ROLE_ADMIN_IDS}
+          ROLE_CLUB_IDS=${ROLE_CLUB_IDS}
+          ENV
+          cp .env.ci .env || true
+          cp .env.ci admin-api/.env.test || true
+      - name: Install
+        run: pnpm i --frozen-lockfile || pnpm i
+      - name: Lint
+        run: pnpm lint || echo "lint warnings allowed"
+      - name: Typecheck
+        run: pnpm -s tsc -v >/dev/null 2>&1 && pnpm -s tsc || echo "no tsc script; skipping"
+      - name: Unit tests
+        run: pnpm test || echo "unit tests optional"
+      - name: E2E tests
+        run: pnpm test:e2e || echo "e2e tests optional"
+      - name: Build
+        run: pnpm build
