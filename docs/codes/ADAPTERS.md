@@ -11,6 +11,7 @@ This document details the per-source strategies for fetching codes, adhering to 
     *   The bot will query the channel history and pinned messages for new codes.
     *   Implement a 429-aware backoff mechanism to handle rate limiting gracefully.
     *   Prioritize pinned and announcement posts, as they are more likely to contain official codes.
+    *   **Required GitHub Secrets:** `DISCORD_TOKEN` (bot token), `DISCORD_CLIENT_ID` (application ID)
 *   **Fallback:** If bot access is not granted, this source will be marked as "not configured," and a manual import process will be documented as a workaround.
 
 ## 2. Reddit (r/SuperSnail_US)
@@ -37,6 +38,7 @@ This document details the per-source strategies for fetching codes, adhering to 
 *   **Implementation:**
     *   Use the Firecrawl `scrape` endpoint in Markdown mode.
     *   **Target:** The main codes table with the columns: `Code | Reward | Expires | Region`.
+    *   **Required GitHub Secrets:** `FIRECRAWL_API_KEY`
     *   **Example Firecrawl Request:**
         ```json
         {
@@ -54,6 +56,7 @@ This document details the per-source strategies for fetching codes, adhering to 
 *   **Implementation:**
     *   Use the Firecrawl `scrape` endpoint.
     *   **Target:** Extract code sections from the article body.
+    *   **Required GitHub Secrets:** `FIRECRAWL_API_KEY`
     *   **Example Firecrawl Request:**
         ```json
         {
@@ -71,6 +74,7 @@ This document details the per-source strategies for fetching codes, adhering to 
 *   **Implementation:**
     *   Use the Firecrawl `scrape` endpoint.
     *   **Target:** The primary list of codes on the page. Document fallback CSS selectors in case the primary selectors change.
+    *   **Required GitHub Secrets:** `FIRECRAWL_API_KEY`
     *   **Example Firecrawl Request:**
         ```json
         {

@@ -4,8 +4,8 @@ This document provides a work breakdown structure (WBS) for the implementation o
 
 | Task ID | Description                      | Effort Estimate | Dependencies                                      |
 | :------ | :------------------------------- | :-------------- | :------------------------------------------------ |
-| A       | API Adapters (Discord, Reddit, Twitter) | M               | Discord bot token, Twitter API v2 keys            |
-| B       | Scrape Adapters (Snelp, Wiki, PocketGamer) | M               | Firecrawl API key                                 |
+| A       | API Adapters (Discord, Reddit, Twitter) | M               | `DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, Twitter API v2 keys |
+| B       | Scrape Adapters (Snelp, Wiki, PocketGamer) | M               | `FIRECRAWL_API_KEY`                               |
 | C       | Normalization and Deduplication  | M               |                                                   |
 | D       | Storage and Health Monitoring    | S               |                                                   |
 | E       | UI/UX (Filters, Badges, Provenance) | S/M             |                                                   |
@@ -19,6 +19,7 @@ This document provides a work breakdown structure (WBS) for the implementation o
 
 **Dependencies:**
 
-*   **Discord Bot Token:** Required to access the Discord API.
-*   **Twitter API v2 Keys:** Required to access the Twitter API.
-*   **Firecrawl API Key:** Required for the scraping-based adapters.
+*   **`DISCORD_TOKEN`:** GitHub secret containing the Discord bot token for API access.
+*   **`DISCORD_CLIENT_ID`:** GitHub secret containing the Discord application/client ID.
+*   **Twitter API v2 Keys:** Required to access the Twitter API (not yet configured).
+*   **`FIRECRAWL_API_KEY`:** GitHub secret containing the Firecrawl API key for scraping-based adapters.
