@@ -1,23 +1,38 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, BarChart3, MessageSquare, Shield, Image, Calculator, FileText, Zap } from "lucide-react";
+import { Bot, BarChart3, MessageSquare, Shield, Image, FileText, Code, Zap } from "lucide-react";
 
 export default function FeaturesPage() {
   const features = [
     {
       icon: Bot,
-      title: "Snail Tools",
+      title: "Personal Snail Tools",
       description: "Comprehensive toolkit for Super Snail players",
+      link: "/snail",
       items: [
         "Screenshot analysis with GPT-4 Vision",
-        "Tier cost calculator",
-        "Secret codes aggregator (Snelp + Reddit)",
+        "Tier cost calculator with resource optimization",
         "Stats tracking and history",
+        "Progress tracking and historical cost analysis",
+      ],
+    },
+    {
+      icon: Code,
+      title: "Snail Codes",
+      description: "Access secret codes and rewards",
+      link: "/snail/codes",
+      items: [
+        "Secret codes aggregator (Snelp + Reddit)",
+        "Automatic code updates",
+        "Code validation and tracking",
+        "Reward history",
       ],
     },
     {
       icon: BarChart3,
       title: "Club Analytics",
       description: "Advanced analytics for club management",
+      link: "/club",
       items: [
         "Member performance tracking",
         "Upload and analyze club screenshots",
@@ -27,19 +42,21 @@ export default function FeaturesPage() {
     },
     {
       icon: MessageSquare,
-      title: "Slime Chat",
-      description: "AI-powered conversational assistant",
+      title: "Slime Chat & Image Generation",
+      description: "AI-powered conversational assistant and image creation",
+      link: "/chat",
       items: [
         "4 personality modes (mentor, partner, mirror, operator)",
-        "Context-aware responses",
-        "Memory system with tagging",
-        "Catchphrase rotation",
+        "Context-aware responses with memory system",
+        "10 artistic styles for image generation",
+        "DALL-E 3 integration with rate limiting",
       ],
     },
     {
       icon: Shield,
       title: "Admin Panel",
       description: "Powerful management tools for admins",
+      link: "/admin",
       items: [
         "Multi-guild management",
         "Role-based access control",
@@ -48,47 +65,15 @@ export default function FeaturesPage() {
       ],
     },
     {
-      icon: Image,
-      title: "Image Generation",
-      description: "AI-powered image creation",
-      items: [
-        "10 artistic styles (anime, watercolor, 3D, pixel art, etc.)",
-        "DALL-E 3 integration",
-        "Database logging for analytics",
-        "Rate limiting and error handling",
-      ],
-    },
-    {
       icon: FileText,
       title: "Memory System",
       description: "Persistent memory and context",
+      link: "/docs",
       items: [
         "Server-wide consent management",
         "Tag-based organization",
         "Context tracking (channel, timestamp)",
         "Export as JSON",
-      ],
-    },
-    {
-      icon: Calculator,
-      title: "Cost Calculator",
-      description: "Calculate upgrade costs",
-      items: [
-        "Tier cost calculations",
-        "Resource optimization",
-        "Progress tracking",
-        "Historical cost analysis",
-      ],
-    },
-    {
-      icon: Zap,
-      title: "Real-time Updates",
-      description: "Stay up-to-date with the latest",
-      items: [
-        "Live API integration",
-        "Automatic code updates",
-        "Health monitoring",
-        "Performance metrics",
       ],
     },
   ];
@@ -107,27 +92,31 @@ export default function FeaturesPage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           {features.map((feature) => (
-            <Card key={feature.title} className="rounded-2xl border border-emerald-500/30 bg-zinc-900/40 hover:bg-zinc-900/60 transition-colors shadow-sm">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <feature.icon className="h-8 w-8 text-neon-green" />
-                  <div>
-                    <CardTitle>{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
+            <Link key={feature.title} href={feature.link}>
+              <Card className="h-full rounded-2xl border border-emerald-500/30 bg-zinc-900/40 hover:bg-zinc-900/60 hover:border-emerald-500/50 transition-all shadow-sm group">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <feature.icon className="h-8 w-8 text-neon-green group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.8)] transition-all" />
+                    <div>
+                      <CardTitle className="group-hover:text-neon-green group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.6)] transition-all">
+                        {feature.title}
+                      </CardTitle>
+                      <CardDescription>{feature.description}</CardDescription>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {feature.items.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <span className="text-neon-green">•</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {feature.items.map((item, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="text-neon-green">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

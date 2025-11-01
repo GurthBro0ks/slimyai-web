@@ -163,6 +163,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
+          <p className="mb-2">fueled by adhd — driven by feet — motivated by ducks</p>
           <p>&copy; {currentYear} slimy.ai. All rights reserved.</p>
         </div>
       </div>
