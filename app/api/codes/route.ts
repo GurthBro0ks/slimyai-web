@@ -1,33 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aggregateCodes, filterByScope } from "@/lib/codes-aggregator";
+import { getCodesByScope } from "@/lib/aggregator";
 
 export const runtime = "nodejs";
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 600; // Cache for 10 minutes
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const scope = searchParams.get("scope") || "active";
 
-    // Aggregate from all sources
-    const result = await aggregateCodes();
+    // Get codes by scope
+    const result = await getCodesByScope(scope);
 
-    // Filter by scope
-    const filteredCodes = filterByScope(result.codes, scope);
-
-    return NextResponse.json(
-      {
-        codes: filteredCodes,
-        sources: result.sources,
-        scope,
-        count: filteredCodes.length,
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "public, s-maxage=600, stale-while-revalidate=86400",
       },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
-        },
-      }
-    );
+    });
   } catch (error) {
     console.error("Codes aggregation error:", error);
 
@@ -37,6 +26,7 @@ export async function GET(request: NextRequest) {
         code: "AGGREGATION_ERROR",
         message: "Failed to aggregate codes",
         codes: [],
+        sources: {},
       },
       { status: 500 }
     );
