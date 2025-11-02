@@ -13,7 +13,10 @@ import { UsageBadge } from "@/components/usage-badge";
 
 interface User {
   id: string;
-  name: string;
+  username: string;
+  globalName: string;
+  avatar: string | null;
+  role: Role;
 }
 
 interface HeaderProps {
@@ -29,9 +32,46 @@ const navItems = [
   { href: "/status", label: "Status" },
 ];
 
-export function Header({ user, role, loading }: HeaderProps) {
+export function Header({ user: propUser, role: propRole, loading: propLoading }: HeaderProps) {
   const pathname = usePathname();
   const adminApiBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE;
+  const [user, setUser] = React.useState<User | null>(propUser || null);
+  const [loading, setLoading] = React.useState(propLoading || false);
+
+  React.useEffect(() => {
+    // If props are provided, use them
+    if (propUser !== undefined) {
+      setUser(propUser);
+      setLoading(propLoading || false);
+      return;
+    }
+
+    // Otherwise, fetch user data on mount
+    const fetchUser = async () => {
+      if (!adminApiBase) return;
+
+      setLoading(true);
+      try {
+        const response = await fetch(`${adminApiBase}/api/auth/me`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if (data.ok && data.user) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [adminApiBase, propUser, propRole, propLoading]);
 
   const handleLogin = async () => {
     if (!adminApiBase) return;
@@ -89,14 +129,14 @@ export function Header({ user, role, loading }: HeaderProps) {
 	          ) : user ? (
 	            <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground hidden sm:inline">
-                {user.name}
+                {user.globalName || user.username}
               </span>
-              {role && role !== "user" && (
-                <Badge variant={role as "admin" | "club"}>
-                  {role.toUpperCase()}
+              {user.role && (user.role === "admin" || user.role === "club") && (
+                <Badge variant={user.role as "admin" | "club"}>
+                  {user.role.toUpperCase()}
                 </Badge>
               )}
-              <Link href={role === "admin" ? "/guilds" : role === "club" ? "/club" : "/snail"}>
+              <Link href={user.role === "admin" ? "/guilds" : user.role === "club" ? "/club" : "/snail"}>
                 <Button variant="neon" size="sm">
                   Dashboard
                 </Button>

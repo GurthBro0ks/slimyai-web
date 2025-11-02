@@ -1,7 +1,8 @@
 # Caddyfile for slimyai-web deployment
 # Place this in /etc/caddy/Caddyfile on your server
 
-admin.slimyai.xyz {
+# Main public domain - slimy.ai
+slimy.ai {
     # Handle API routes - proxy to admin API backend
     handle_path /api/* {
         reverse_proxy localhost:3080 {
@@ -9,7 +10,7 @@ admin.slimyai.xyz {
             health_uri /api/health
             health_interval 10s
             health_timeout 5s
-            
+
             # Headers
             header_up Host {host}
             header_up X-Real-IP {remote_host}
@@ -24,7 +25,7 @@ admin.slimyai.xyz {
         health_uri /api/health
         health_interval 10s
         health_timeout 5s
-        
+
         # Headers
         header_up Host {host}
         header_up X-Real-IP {remote_host}
@@ -36,29 +37,29 @@ admin.slimyai.xyz {
     header {
         # HSTS
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        
+
         # Prevent MIME sniffing
         X-Content-Type-Options "nosniff"
-        
+
         # Clickjacking protection
         X-Frame-Options "DENY"
-        
+
         # XSS protection
         X-XSS-Protection "1; mode=block"
-        
+
         # Referrer policy
         Referrer-Policy "strict-origin-when-cross-origin"
-        
+
         # CSP (adjust as needed)
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://admin.slimyai.xyz"
-        
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://admin.slimyai.xyz https://slimy.ai"
+
         # Remove server header
         -Server
     }
 
     # Logging
     log {
-        output file /var/log/caddy/admin.slimyai.xyz.log {
+        output file /var/log/caddy/slimy.ai.log {
             roll_size 10MB
             roll_keep 10
         }
@@ -75,7 +76,23 @@ admin.slimyai.xyz {
     }
 }
 
+# Admin subdomain - redirect to main domain for admin access
+admin.slimy.ai {
+    # Redirect admin routes to main domain
+    redir https://slimy.ai{uri} permanent
+}
+
+# Legacy admin domain - redirect to main domain
+admin.slimyai.xyz {
+    redir https://slimy.ai{uri} permanent
+}
+
 # Optional: Redirect www to non-www
+www.slimy.ai {
+    redir https://slimy.ai{uri} permanent
+}
+
+# Optional: Redirect legacy www admin domain
 www.admin.slimyai.xyz {
-    redir https://admin.slimyai.xyz{uri} permanent
+    redir https://slimy.ai{uri} permanent
 }
