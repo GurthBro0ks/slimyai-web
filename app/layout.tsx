@@ -3,14 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import dynamic from "next/dynamic";
+import { SlimeChatWrapper } from "@/components/slime-chat/slime-chat-wrapper";
 
 const inter = Inter({ subsets: ["latin"] });
-
-const SlimeChatWindow = dynamic(
-  () => import("@/components/slime-chat/slime-chat-window").then((mod) => mod.SlimeChatWindow),
-  { ssr: false, loading: () => null }
-);
 
 export const metadata: Metadata = {
   title: "Slimy.ai - AI-Powered Discord Bot",
@@ -33,7 +28,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
-        {enableSlimeChat && <SlimeChatWindow />}
+        {enableSlimeChat && <SlimeChatWrapper />}
       </body>
     </html>
   );
