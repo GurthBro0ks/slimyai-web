@@ -4,6 +4,53 @@ All notable changes to the Slimy.ai Web project will be documented in this file.
 
 ## [Unreleased]
 
+### Deployment Fixes & Chat Features - 2025-11-02
+
+**Summary**: Fixed deployment issues, resolved Discord login, and deployed chat features with club management APIs.
+
+**Deployment Fixes**:
+- Fixed container port conflict (removed old container on port 3000)
+- Updated docker-compose.yml port mapping to match Caddy configuration
+- Resolved website not showing latest updates
+
+**Authentication**:
+- Fixed Discord login button to properly redirect to OAuth flow
+- Changed from Link to Button with async click handler
+- Now fetches OAuth URL from API and redirects correctly
+
+**Build Fixes**:
+- Fixed Next.js SSR error: created Client Component wrapper for SlimeChatWindow
+- Fixed TypeScript error in `app/api/diag/route.ts` (removed unreachable status check)
+- Removed exposed Discord credentials from documentation
+
+**New Features Deployed**:
+- Chat API routes: `/api/chat/messages`, `/api/chat/users`
+- Club management APIs: `/api/club/export`, `/api/club/upload`
+- Slime chat components (bar, user list, window)
+- MCP client integration (`lib/mcp-client.ts`)
+
+**Security**:
+- Removed exposed Discord bot token from DEPLOYMENT_FIX.md
+- Used git rebase to clean commit history
+- All secrets now use placeholders in documentation
+
+**Files Modified**:
+- `components/layout/header.tsx` - Fixed Discord login
+- `app/layout.tsx` - Fixed SSR issue
+- `components/slime-chat/slime-chat-wrapper.tsx` - NEW: Client wrapper
+- `app/api/diag/route.ts` - TypeScript fix
+- `docker-compose.yml` - Port configuration
+- `app/api/club/export/route.ts` - NEW
+- `app/api/club/upload/route.ts` - NEW
+- `app/api/chat/messages/route.ts` - NEW
+- `app/api/chat/users/route.ts` - NEW
+
+**Commits**: 8 commits pushed to `feat/codes-hardening-and-ci` branch
+
+**Status**: ✅ All systems operational at https://admin.slimyai.xyz
+
+---
+
 ### Mobile Polish v1 - 2025-10-31
 
 **Summary**: Finalized Mobile Polish v1 implementation with comprehensive refactoring and test environment setup.
