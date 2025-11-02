@@ -33,6 +33,23 @@ export function Header({ user, role, loading }: HeaderProps) {
   const pathname = usePathname();
   const adminApiBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE;
 
+  const handleLogin = async () => {
+    if (!adminApiBase) return;
+
+    try {
+      const response = await fetch(`${adminApiBase}/api/auth/login`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+
+      if (data.ok && data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -86,11 +103,14 @@ export function Header({ user, role, loading }: HeaderProps) {
               </Link>
             </div>
           ) : (
-            <Link href={adminApiBase ? `${adminApiBase}/api/auth/login` : "#"}>
-              <Button variant="neon" size="sm">
-                Login with Discord
-              </Button>
-            </Link>
+            <Button
+              variant="neon"
+              size="sm"
+              onClick={handleLogin}
+              disabled={!adminApiBase}
+            >
+              Login with Discord
+            </Button>
           )}
         </div>
       </div>
