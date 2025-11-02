@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: slimyai-web
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       - NEXT_PUBLIC_ADMIN_API_BASE=https://admin.slimyai.xyz
       - NEXT_PUBLIC_SNELP_CODES_URL=https://snelp.com/api/codes
