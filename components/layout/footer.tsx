@@ -10,7 +10,7 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-bold text-neon-green">Slimy.ai</h3>
             <p className="text-sm text-muted-foreground">
-              Your AI-powered Discord companion for Super Snail and more.
+              Emerald-grade copilots for the Super Snail community and the broader snailverse.
             </p>
           </div>
           <div>
