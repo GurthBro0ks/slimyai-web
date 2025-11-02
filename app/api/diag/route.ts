@@ -32,9 +32,7 @@ export async function GET() {
   })();
 
   const overallStatus =
-    adminStatus === "operational"
-      ? "operational"
-      : adminStatus === "not_configured"
+    adminStatus === "not_configured"
       ? "not_configured"
       : "degraded";
 
