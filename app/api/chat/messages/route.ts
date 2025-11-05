@@ -1,46 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// TODO: Import MCP client when available
-// import { MCPClient } from '@/lib/mcp-client';
+import { getChatStore } from '@/lib/chat-store';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const guildId = searchParams.get('guildId');
+    const guildId = searchParams.get('guildId') || 'default';
     const limit = parseInt(searchParams.get('limit') || '50');
+    const sinceParam = searchParams.get('since');
 
-    if (!guildId) {
-      return NextResponse.json(
-        { error: 'Guild ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // TODO: Connect to MCP chat.service
-    // const mcpClient = new MCPClient();
-    // const messages = await mcpClient.callTool('chat.service', 'getMessages', {
-    //   guildId,
-    //   limit,
-    //   since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-    // });
-
-    // Placeholder response
-    const messages = [
-      {
-        id: '1',
-        username: 'Alex',
-        content: 'Hello!',
-        timestamp: new Date().toISOString(),
-        userColor: '#06b6d4',
-      },
-      {
-        id: '2',
-        username: 'Brooke',
-        content: 'Hi there!',
-        timestamp: new Date().toISOString(),
-        userColor: '#ec4899',
-      },
-    ];
+    // Get messages from store
+    const chatStore = getChatStore();
+    const since = sinceParam ? new Date(sinceParam) : undefined;
+    const messages = chatStore.getMessages(guildId, limit, since);
 
     return NextResponse.json({ messages });
   } catch (error) {
@@ -55,33 +26,40 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { guildId, userId, username, content } = body;
+    const { guildId = 'default', userId, username, content, userColor } = body;
 
-    if (!guildId || !userId || !content) {
+    // Validate required fields
+    if (!userId || !username || !content) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields (userId, username, content)' },
         { status: 400 }
       );
     }
 
-    // TODO: Connect to MCP chat.service
-    // const mcpClient = new MCPClient();
-    // const result = await mcpClient.callTool('chat.service', 'sendMessage', {
-    //   guildId,
-    //   userId,
-    //   username,
-    //   content,
-    //   timestamp: new Date().toISOString()
-    // });
+    // Validate content length
+    if (content.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Message content cannot be empty' },
+        { status: 400 }
+      );
+    }
 
-    // Placeholder response
-    const message = {
-      id: Date.now().toString(),
+    if (content.length > 2000) {
+      return NextResponse.json(
+        { error: 'Message content too long (max 2000 characters)' },
+        { status: 400 }
+      );
+    }
+
+    // Add message to store
+    const chatStore = getChatStore();
+    const message = chatStore.addMessage({
+      guildId,
+      userId,
       username,
-      content,
-      timestamp: new Date().toISOString(),
-      userColor: '#10b981',
-    };
+      content: content.trim(),
+      userColor: userColor || chatStore['generateUserColor'](userId),
+    });
 
     return NextResponse.json({ message });
   } catch (error) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Menu, Send } from "lucide-react";
+import { X, Menu } from "lucide-react";
 import Image from "next/image";
 import { SlimeChatUserList } from "./slime-chat-user-list";
 
@@ -9,7 +9,7 @@ interface Message {
   id: string;
   username: string;
   content: string;
-  timestamp: Date;
+  timestamp: string;
   userColor: string;
 }
 
@@ -18,39 +18,91 @@ interface SlimeChatWindowProps {
   isMobile: boolean;
 }
 
+// Generate a consistent user ID for this session
+const getUserId = () => {
+  if (typeof window === 'undefined') return 'anonymous';
+
+  let userId = localStorage.getItem('slime_chat_user_id');
+  if (!userId) {
+    userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('slime_chat_user_id', userId);
+  }
+  return userId;
+};
+
+// Get or set username
+const getUsername = () => {
+  if (typeof window === 'undefined') return 'Guest';
+
+  let username = localStorage.getItem('slime_chat_username');
+  if (!username) {
+    username = `Guest${Math.floor(Math.random() * 1000)}`;
+    localStorage.setItem('slime_chat_username', username);
+  }
+  return username;
+};
+
 export function SlimeChatWindow({ onClose, isMobile }: SlimeChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [showUserList, setShowUserList] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastFetchTime = useRef<string | null>(null);
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // TODO: Connect to MCP chat service
+  const guildId = 'default'; // Use default guild for now
+  const userId = getUserId();
+  const username = getUsername();
+
+  // Fetch messages from backend
+  const fetchMessages = async (isInitial = false) => {
+    try {
+      const params = new URLSearchParams({ guildId, limit: '50' });
+      if (!isInitial && lastFetchTime.current) {
+        params.append('since', lastFetchTime.current);
+      }
+
+      const response = await fetch(`/api/chat/messages?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch messages');
+
+      const data = await response.json();
+
+      if (isInitial) {
+        setMessages(data.messages || []);
+      } else if (data.messages && data.messages.length > 0) {
+        setMessages(prev => [...prev, ...data.messages]);
+      }
+
+      // Update last fetch time
+      if (data.messages && data.messages.length > 0) {
+        lastFetchTime.current = data.messages[data.messages.length - 1].timestamp;
+      }
+
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+      if (isInitial) {
+        setError('Failed to load messages');
+      }
+    }
+  };
+
+  // Load messages on mount and set up polling
   useEffect(() => {
-    // Placeholder messages for demonstration
-    const demoMessages: Message[] = [
-      {
-        id: "1",
-        username: "Alex",
-        content: "Hello!",
-        timestamp: new Date(),
-        userColor: "#06b6d4", // cyan
-      },
-      {
-        id: "2",
-        username: "Brooke",
-        content: "Hi there!",
-        timestamp: new Date(),
-        userColor: "#ec4899", // magenta
-      },
-      {
-        id: "3",
-        username: "Chris",
-        content: "How's it going?",
-        timestamp: new Date(),
-        userColor: "#eab308", // yellow
-      },
-    ];
-    setMessages(demoMessages);
+    fetchMessages(true);
+
+    // Poll for new messages every 2 seconds
+    pollingInterval.current = setInterval(() => {
+      fetchMessages(false);
+    }, 2000);
+
+    return () => {
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+      }
+    };
   }, []);
 
   // Auto-scroll to bottom when new messages arrive
@@ -58,20 +110,41 @@ export function SlimeChatWindow({ onClose, isMobile }: SlimeChatWindowProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
 
-    // TODO: Send message via MCP chat service
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      username: "You",
-      content: inputValue,
-      timestamp: new Date(),
-      userColor: "#10b981", // green
-    };
+    setIsLoading(true);
+    setError(null);
 
-    setMessages([...messages, newMessage]);
-    setInputValue("");
+    try {
+      const response = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guildId,
+          userId,
+          username,
+          content: inputValue.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
+      }
+
+      const data = await response.json();
+
+      // Add the sent message immediately to the UI
+      setMessages(prev => [...prev, data.message]);
+      lastFetchTime.current = data.message.timestamp;
+      setInputValue("");
+    } catch (err: any) {
+      console.error('Error sending message:', err);
+      setError(err.message || 'Failed to send message');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -135,25 +208,37 @@ export function SlimeChatWindow({ onClose, isMobile }: SlimeChatWindowProps) {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ height: 'calc(100% - 120px)' }}>
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+
+        {messages.length === 0 && !error && (
+          <div className="text-center text-gray-500 text-sm mt-8">
+            No messages yet. Be the first to say hello!
+          </div>
+        )}
+
         {messages.map((message) => (
           <div key={message.id} className="flex items-start gap-3">
             {/* User Avatar */}
-            <div 
+            <div
               className="w-8 h-8 rounded flex-shrink-0"
               style={{ backgroundColor: message.userColor }}
             />
-            
+
             {/* Message Content */}
             <div className="flex-1">
               <div className="flex items-baseline gap-2">
-                <span 
+                <span
                   className="font-semibold text-sm"
                   style={{ color: message.userColor }}
                 >
                   {message.username}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
               <p className="text-white text-sm mt-1">{message.content}</p>
@@ -172,13 +257,15 @@ export function SlimeChatWindow({ onClose, isMobile }: SlimeChatWindowProps) {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
-            className="flex-1 bg-zinc-800 text-white px-4 py-2 rounded-lg border border-emerald-500/30 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 placeholder-gray-500"
+            disabled={isLoading}
+            className="flex-1 bg-zinc-800 text-white px-4 py-2 rounded-lg border border-emerald-500/30 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 placeholder-gray-500 disabled:opacity-50"
           />
           <button
             onClick={handleSendMessage}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)] hover:shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+            disabled={isLoading || !inputValue.trim()}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)] hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send
+            {isLoading ? 'Sending...' : 'Send'}
           </button>
         </div>
       </div>

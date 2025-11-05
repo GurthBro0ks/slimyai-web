@@ -1,33 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// TODO: Import MCP client when available
-// import { MCPClient } from '@/lib/mcp-client';
+import { getChatStore } from '@/lib/chat-store';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const guildId = searchParams.get('guildId');
+    const guildId = searchParams.get('guildId') || 'default';
 
-    if (!guildId) {
-      return NextResponse.json(
-        { error: 'Guild ID is required' },
-        { status: 400 }
-      );
-    }
+    // Get online users from store
+    const chatStore = getChatStore();
+    const users = chatStore.getOnlineUsers(guildId);
 
-    // TODO: Connect to MCP chat.service
-    // const mcpClient = new MCPClient();
-    // const users = await mcpClient.callTool('chat.service', 'getOnlineUsers', {
-    //   guildId
-    // });
-
-    // Placeholder response
-    const users = [
-      { id: '1', username: 'Alex', color: '#06b6d4', status: 'online' },
-      { id: '2', username: 'Brooke', color: '#ec4899', status: 'online' },
-      { id: '3', username: 'Chris', color: '#eab308', status: 'online' },
-      { id: '4', username: 'Devon', color: '#8b5cf6', status: 'online' },
-    ];
+    // Clean up old offline users (optional maintenance)
+    chatStore.cleanupOfflineUsers(guildId);
 
     return NextResponse.json({ users });
   } catch (error) {
