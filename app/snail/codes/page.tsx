@@ -1,67 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CopyBox } from "@/components/ui/copy-box";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Callout } from "@/components/ui/callout";
-import { RefreshCw, Search, Flag, Info } from "lucide-react";
-
-interface CodeSource {
-  site: string;
-  url?: string;
-  post_id?: string;
-  confidence: number;
-  fetched_at: string;
-}
+import { RefreshCw, Search, Flag } from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 
 interface Code {
   code: string;
-  title?: string;
+  source: "snelp" | "reddit";
+  ts: string;
+  tags: string[];
+  expires: string | null;
+  region: string;
   description?: string;
-  rewards?: string[];
-  region?: string;
-  expires_at?: string | null;
-  first_seen_at: string;
-  last_seen_at: string;
-  sources: CodeSource[];
-  verified: boolean;
-  tags?: string[];
-}
-
-interface SourceMetadata {
-  source: string;
-  status: string;
-  lastFetch: string;
-  itemCount: number;
-  error?: string;
 }
 
 export default function CodesPage() {
   const [codes, setCodes] = useState<Code[]>([]);
   const [filteredCodes, setFilteredCodes] = useState<Code[]>([]);
-  const [sources, setSources] = useState<Record<string, SourceMetadata>>({});
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<"active" | "past7" | "all">("active");
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [reportingCode, setReportingCode] = useState<string | null>(null);
-  const [showProvenance, setShowProvenance] = useState<string | null>(null);
 
-  const fetchCodes = async (hardRefresh = false) => {
+  const fetchCodes = useCallback(async (hardRefresh = false) => {
     if (hardRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
       const cache = hardRefresh ? "no-cache" : "default";
       const response = await fetch(`/api/codes?scope=${scope}`, { cache });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCodes(data.codes || []);
-        setSources(data.sources || {});
       }
     } catch (error) {
       console.error("Failed to fetch codes:", error);
@@ -69,11 +47,11 @@ export default function CodesPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [scope]);
 
   useEffect(() => {
     fetchCodes();
-  }, [scope]);
+  }, [fetchCodes]);
 
   // Client-side search filtering
   useEffect(() => {
@@ -87,8 +65,8 @@ export default function CodesPage() {
       return (
         code.code.toLowerCase().includes(query) ||
         code.description?.toLowerCase().includes(query) ||
-        code.title?.toLowerCase().includes(query) ||
-        code.tags?.some((tag) => tag.toLowerCase().includes(query))
+        code.tags.some((tag) => tag.toLowerCase().includes(query)) ||
+        code.source.toLowerCase().includes(query)
       );
     });
 
@@ -112,6 +90,7 @@ export default function CodesPage() {
 
       if (response.ok) {
         console.info("Code reported:", code);
+        // Show success feedback
         setTimeout(() => setReportingCode(null), 1000);
       }
     } catch (error) {
@@ -122,39 +101,26 @@ export default function CodesPage() {
 
   const allCodesText = filteredCodes.map((c) => c.code).join("\n");
 
-  const getSourceBadge = (site: string) => {
-    const badges: Record<string, { label: string; variant: any }> = {
-      wiki: { label: "Wiki", variant: "default" },
-      discord: { label: "Discord", variant: "default" },
-      twitter: { label: "Twitter", variant: "default" },
-      reddit: { label: "Reddit", variant: "secondary" },
-      pocketgamer: { label: "PocketGamer", variant: "secondary" },
-      snelp: { label: "Snelp", variant: "secondary" },
-    };
-
-    const badge = badges[site] || { label: site, variant: "outline" };
-    return <Badge variant={badge.variant}>{badge.label}</Badge>;
-  };
-
-  const isExpiringSoon = (expiresAt?: string | null) => {
-    if (!expiresAt) return false;
-    const expiry = new Date(expiresAt);
-    const now = new Date();
-    const threeDays = 3 * 24 * 60 * 60 * 1000;
-    return expiry.getTime() - now.getTime() < threeDays;
+  const getSourceBadge = (source: Code["source"]) => {
+    switch (source) {
+      case "snelp":
+        return <Badge variant="default">Snelp</Badge>;
+      case "reddit":
+        return <Badge variant="secondary">Reddit</Badge>;
+    }
   };
 
   return (
-    <div className="container px-4 py-8">
+    <ProtectedRoute>
+      <div className="container px-4 py-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold">Secret Codes</h1>
           <p className="text-muted-foreground">
-            Aggregated from Discord, Reddit, Wiki, PocketGamer, and Snelp
+            Aggregated from Snelp and Reddit r/SuperSnailGame
           </p>
         </div>
 
-        {/* Filter Bar */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-2">
             <Button
@@ -220,7 +186,6 @@ export default function CodesPage() {
           </div>
         ) : (
           <>
-            {/* Copy All Card */}
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle>Copy All Codes</CardTitle>
@@ -234,12 +199,9 @@ export default function CodesPage() {
               </CardContent>
             </Card>
 
-            {/* Empty State */}
             {filteredCodes.length === 0 ? (
               <Callout variant="warn">
-                {searchQuery 
-                  ? `No codes found matching "${searchQuery}"`
-                  : "No codes available for the selected filter. Try a different scope or refresh."}
+                No codes found matching &quot;{searchQuery}&quot;
               </Callout>
             ) : (
               <div className="space-y-4">
@@ -248,32 +210,28 @@ export default function CodesPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="font-mono text-lg">
-                              {code.code}
-                            </CardTitle>
-                            {code.verified && (
-                              <Badge variant="default" className="text-xs">
-                                Verified
-                              </Badge>
-                            )}
-                          </div>
+                          <CardTitle className="font-mono text-lg">
+                            {code.code}
+                          </CardTitle>
                           <CardDescription>
-                            {code.title || code.description || "No description"}
+                            Added {new Date(code.ts).toLocaleDateString()}
+                            {code.description && ` • ${code.description}`}
                           </CardDescription>
+                        </div>
+                        <div className="flex gap-2">
+                          {getSourceBadge(code.source)}
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-3">
-                        {/* Metadata */}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex flex-wrap gap-2">
-                          {code.region && code.region !== "global" && (
+                          {code.region && (
                             <Badge variant="outline">{code.region.toUpperCase()}</Badge>
                           )}
-                          {code.expires_at && (
-                            <Badge variant={isExpiringSoon(code.expires_at) ? "destructive" : "secondary"}>
-                              {isExpiringSoon(code.expires_at) ? "Expires Soon" : "Expires"} {new Date(code.expires_at).toLocaleDateString()}
+                          {code.expires && (
+                            <Badge variant="destructive">
+                              Expires {new Date(code.expires).toLocaleDateString()}
                             </Badge>
                           )}
                           {code.tags?.map((tag) => (
@@ -282,65 +240,16 @@ export default function CodesPage() {
                             </Badge>
                           ))}
                         </div>
-
-                        {/* Rewards */}
-                        {code.rewards && code.rewards.length > 0 && (
-                          <div className="text-sm text-muted-foreground">
-                            <strong>Rewards:</strong> {code.rewards.join(", ")}
-                          </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex flex-wrap gap-2">
-                            {Array.from(new Set(code.sources.map(s => s.site))).map((site) => (
-                              <span key={site}>{getSourceBadge(site)}</span>
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowProvenance(showProvenance === code.code ? null : code.code)}
-                              className="text-xs"
-                            >
-                              <Info className="h-3 w-3 mr-1" />
-                              Sources ({code.sources.length})
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleReportCode(code.code)}
-                              disabled={reportingCode === code.code}
-                              className="text-xs"
-                            >
-                              <Flag className="h-3 w-3 mr-1" />
-                              {reportingCode === code.code ? "Reported" : "Report"}
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Provenance Drawer */}
-                        {showProvenance === code.code && (
-                          <div className="mt-3 rounded-md border bg-muted/50 p-3 text-sm">
-                            <div className="font-semibold mb-2">Source Provenance</div>
-                            <div className="space-y-2">
-                              {code.sources.map((source, idx) => (
-                                <div key={idx} className="flex items-center justify-between text-xs">
-                                  <div className="flex items-center gap-2">
-                                    {getSourceBadge(source.site)}
-                                    <span className="text-muted-foreground">
-                                      {new Date(source.fetched_at).toLocaleString()}
-                                    </span>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs">
-                                    {Math.round(source.confidence * 100)}% confidence
-                                  </Badge>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReportCode(code.code)}
+                          disabled={reportingCode === code.code}
+                          className="text-xs"
+                        >
+                          <Flag className="h-3 w-3 mr-1" />
+                          {reportingCode === code.code ? "Reported" : "Report Dead"}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -350,6 +259,7 @@ export default function CodesPage() {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

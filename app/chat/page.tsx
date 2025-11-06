@@ -1,5 +1,7 @@
 import { MessageSquare } from "lucide-react";
-import { ChatInterface } from "@/components/chat/chat-interface";
+import { LazyChatInterface } from "@/components/lazy";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/lib/lazy";
 
 export default function ChatPage() {
   return (
@@ -15,7 +17,9 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <ChatInterface />
+        <Suspense fallback={<LoadingSpinner size="lg" />}>
+          <LazyChatInterface />
+        </Suspense>
       </div>
     </div>
   );

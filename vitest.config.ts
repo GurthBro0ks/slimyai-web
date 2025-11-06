@@ -7,6 +7,31 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    setupFiles: ["./tests/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html", "lcov"],
+      exclude: [
+        "node_modules/",
+        "dist/",
+        ".next/",
+        "coverage/",
+        "**/*.d.ts",
+        "**/*.config.*",
+        "cypress/",
+        "public/",
+        "playwright-report/",
+        "test-results/",
+      ],
+      thresholds: {
+        global: {
+          branches: 60,
+          functions: 60,
+          lines: 60,
+          statements: 60,
+        },
+      },
+    },
   },
   resolve: {
     alias: {

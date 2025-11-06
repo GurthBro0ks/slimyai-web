@@ -19,12 +19,12 @@ export function Footer() {
               <h4 className="mb-3 text-sm font-semibold whitespace-nowrap">Product</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/features" className="text-muted-foreground hover:text-neon-green whitespace-nowrap">
+                  <Link href="/features" className="text-muted-foreground hover:text-neon-green whitespace-nowrap" prefetch>
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="/docs" className="text-muted-foreground hover:text-neon-green whitespace-nowrap">
+                  <Link href="/docs" className="text-muted-foreground hover:text-neon-green whitespace-nowrap" prefetch>
                     Documentation
                   </Link>
                 </li>
@@ -41,17 +41,17 @@ export function Footer() {
               <h4 className="mb-3 text-sm font-semibold whitespace-nowrap">Tools</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/snail" className="text-muted-foreground hover:text-neon-green whitespace-nowrap">
+                  <Link href="/snail" className="text-muted-foreground hover:text-neon-green whitespace-nowrap" prefetch>
                     Snail Tools
                   </Link>
                 </li>
                 <li>
-                  <Link href="/club" className="text-muted-foreground hover:text-neon-green whitespace-nowrap">
+                  <Link href="/club" className="text-muted-foreground hover:text-neon-green whitespace-nowrap" prefetch>
                     Club Analytics
                   </Link>
                 </li>
                 <li>
-                  <Link href="/chat" className="text-muted-foreground hover:text-neon-green whitespace-nowrap">
+                  <Link href="/chat" className="text-muted-foreground hover:text-neon-green whitespace-nowrap" prefetch>
                     Slime Chat
                   </Link>
                 </li>
@@ -99,12 +99,12 @@ export function Footer() {
             <h4 className="mb-4 text-sm font-semibold">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/features" className="text-muted-foreground hover:text-neon-green">
+                <Link href="/features" className="text-muted-foreground hover:text-neon-green" prefetch>
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/docs" className="text-muted-foreground hover:text-neon-green">
+                <Link href="/docs" className="text-muted-foreground hover:text-neon-green" prefetch>
                   Documentation
                 </Link>
               </li>
@@ -119,17 +119,17 @@ export function Footer() {
             <h4 className="mb-4 text-sm font-semibold">Tools</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/snail" className="text-muted-foreground hover:text-neon-green">
+                <Link href="/snail" className="text-muted-foreground hover:text-neon-green" prefetch>
                   Snail Tools
                 </Link>
               </li>
               <li>
-                <Link href="/club" className="text-muted-foreground hover:text-neon-green">
+                <Link href="/club" className="text-muted-foreground hover:text-neon-green" prefetch>
                   Club Analytics
                 </Link>
               </li>
               <li>
-                <Link href="/chat" className="text-muted-foreground hover:text-neon-green">
+                <Link href="/chat" className="text-muted-foreground hover:text-neon-green" prefetch>
                   Slime Chat
                 </Link>
               </li>
