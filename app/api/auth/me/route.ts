@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { proxyToAdminApi } from "@/lib/api-proxy";
+import { apiClient } from "@/lib/api-client";
 import { getUserRole } from "@/slimy.config";
 
 export const dynamic = "force-dynamic"; // no-store
@@ -16,10 +16,12 @@ interface AdminApiMeResponse {
 }
 
 export async function GET() {
-  const result = await proxyToAdminApi<AdminApiMeResponse>("/api/auth/me");
+  const result = await apiClient.get<AdminApiMeResponse>("/api/auth/me", {
+    useCache: false, // Don't cache auth data
+  });
 
   if (!result.ok) {
-    return NextResponse.json(result, { status: 401 });
+    return NextResponse.json(result, { status: result.status || 401 });
   }
 
   // Extract roles from guilds and determine user role

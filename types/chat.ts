@@ -20,6 +20,7 @@ export interface ChatRequest {
   message: string;
   personalityMode: PersonalityMode;
   conversationHistory: Message[];
+  userId?: string;
 }
 
 export interface ChatResponse {

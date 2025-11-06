@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isRateLimited } from "@/lib/rate-limiter";
-import { generateMockChatResponse } from "@/lib/chat-actions";
+import { apiClient } from "@/lib/api-client";
 
 export const runtime = "nodejs";
 
@@ -31,19 +31,29 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: {
+      prompt: string;
       guildId: string;
-      route: string;
-      role: string;
-      filters: any;
-      pageSummary: string;
-      userAsk: string;
     } = await request.json();
 
-    const response = generateMockChatResponse(body.userAsk);
+    const response = await apiClient.post<{ ok: boolean; reply: string }>("/api/chat/bot", {
+      prompt: body.prompt,
+      guildId: body.guildId,
+    });
+
+    if (!response.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "CHAT_ERROR",
+          message: response.message || "An error occurred while processing your request.",
+        },
+        { status: response.status || 500 }
+      );
+    }
 
     return NextResponse.json({
       ok: true,
-      ...response,
+      reply: response.data.reply,
     });
   } catch (error) {
     console.error("Chat bot error:", error);

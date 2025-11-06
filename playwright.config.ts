@@ -6,20 +6,30 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: process.env.CI ? "github" : "html",
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Reduce viewport size for faster tests in CI
+        viewport: process.env.CI ? { width: 1280, height: 720 } : { width: 1920, height: 1080 },
+      },
     },
   ],
   webServer: {
-    command: "pnpm build && pnpm start",
+    command: "npm run build && npm start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes
+  },
+  expect: {
+    timeout: 10000,
   },
 });

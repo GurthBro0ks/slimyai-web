@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// TODO: Import MCP client when available
-// import { MCPClient } from '@/lib/mcp-client';
+import { apiClient } from '@/lib/api-client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,33 +14,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // TODO: Connect to MCP chat.service
-    // const mcpClient = new MCPClient();
-    // const messages = await mcpClient.callTool('chat.service', 'getMessages', {
-    //   guildId,
-    //   limit,
-    //   since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-    // });
+    // Proxy to admin API chat history
+    const response = await apiClient.get(`/api/chat/${guildId}/history?limit=${limit}`);
 
-    // Placeholder response
-    const messages = [
-      {
-        id: '1',
-        username: 'Alex',
-        content: 'Hello!',
-        timestamp: new Date().toISOString(),
-        userColor: '#06b6d4',
-      },
-      {
-        id: '2',
-        username: 'Brooke',
-        content: 'Hi there!',
-        timestamp: new Date().toISOString(),
-        userColor: '#ec4899',
-      },
-    ];
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: response.message || 'Failed to fetch messages' },
+        { status: response.status || 500 }
+      );
+    }
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ messages: response.data.messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
     return NextResponse.json(
@@ -55,35 +37,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { guildId, userId, username, content } = body;
+    const { conversationId, message } = body;
 
-    if (!guildId || !userId || !content) {
+    if (!conversationId || !message) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // TODO: Connect to MCP chat.service
-    // const mcpClient = new MCPClient();
-    // const result = await mcpClient.callTool('chat.service', 'sendMessage', {
-    //   guildId,
-    //   userId,
-    //   username,
-    //   content,
-    //   timestamp: new Date().toISOString()
-    // });
+    // Proxy to admin API chat messages
+    const response = await apiClient.post('/api/chat/messages', {
+      conversationId,
+      message,
+    });
 
-    // Placeholder response
-    const message = {
-      id: Date.now().toString(),
-      username,
-      content,
-      timestamp: new Date().toISOString(),
-      userColor: '#10b981',
-    };
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: response.message || 'Failed to send message' },
+        { status: response.status || 500 }
+      );
+    }
 
-    return NextResponse.json({ message });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Error sending message:', error);
     return NextResponse.json(

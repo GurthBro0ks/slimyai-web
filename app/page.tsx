@@ -1,11 +1,13 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, BarChart3, MessageSquare, Shield } from "lucide-react";
+import { useAuth } from "@/lib/auth/context";
 
 export default function HomePage() {
-  const adminApiBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE;
+  const { login } = useAuth();
 
   const features = [
     {
@@ -61,12 +63,10 @@ export default function HomePage() {
         </p>
 
         {/* CTA Button */}
-        <Link href={adminApiBase ? `${adminApiBase}/api/auth/login` : "#"}>
-          <Button variant="purple" size="lg" className="rounded-full">
-            <span className="md:hidden">Login</span>
-            <span className="hidden md:inline">Login with Discord</span>
-          </Button>
-        </Link>
+        <Button variant="purple" size="lg" className="rounded-full" onClick={login}>
+          <span className="md:hidden">Login</span>
+          <span className="hidden md:inline">Login with Discord</span>
+        </Button>
       </section>
 
       {/* Features Grid */}

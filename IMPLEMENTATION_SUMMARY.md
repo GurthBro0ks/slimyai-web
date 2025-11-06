@@ -1,145 +1,185 @@
-# Codes Aggregator Implementation Summary
+# Implementation Summary: Admin API Recommendations
 
-This document summarizes the implementation of the Codes Aggregator feature following the API-first architecture plan.
+## Completed Implementations
 
-## ✅ Completed Components
+### 1. ✅ Dockerfile Created
+**File:** `/opt/slimy/app/admin-api/Dockerfile`
 
-### 1. Type Definitions (`lib/types/codes.ts`)
-- Defined comprehensive TypeScript types for codes, sources, and metadata
-- Supports all 6 source types: Discord, Reddit, Twitter, Wiki, PocketGamer, Snelp
-- Includes source status tracking: `ok`, `degraded`, `failed`, `not_configured`
+- Node.js 18-slim base image
+- Production dependencies only
+- Health check configured
+- Port 3080 exposed
+- Data directories created
 
-### 2. API Adapters
+### 2. ✅ Docker Compose Updated
+**File:** `/opt/slimy/web/docker-compose.yml`
 
-#### Discord Adapter (`lib/adapters/discord.ts`)
-- Uses Discord Bot API with `DISCORD_TOKEN` and `DISCORD_CLIENT_ID` secrets
-- Fetches messages from channel `1118010099974287370`
-- Implements 429 rate-limit handling
-- Trust weight: 0.9
+**Changes:**
+- Added `admin-api` service
+- Configured environment variables with defaults
+- Added volumes for data persistence (`admin-api-data`, `admin-api-uploads`)
+- Added health check
+- Web service now depends on admin-api
+- Web service uses internal URL (`http://admin-api:3080`) by default
 
-#### Reddit Adapter (`lib/adapters/reddit.ts`)
-- Uses public JSON API for r/SuperSnail_US
-- Searches for "code OR 'secret code' OR redeem"
-- Implements cross-post deduplication within 24 hours
-- Trust weight: 0.6
+**Environment Variables:**
+- All Discord OAuth variables configurable via environment
+- Optional features (OpenAI, Stats) can be enabled via env vars
+- Uses `${VAR:-default}` syntax for optional variables
 
-#### Wiki Adapter (`lib/adapters/wiki.ts`)
-- Uses Firecrawl API with `FIRECRAWL_API_KEY` secret
-- Scrapes https://supersnail.wiki.gg/wiki/Snail_codes
-- Parses markdown tables for codes
-- Trust weight: 1.0 (highest trust)
+### 3. ✅ Additional Routes Mounted
+**File:** `/opt/slimy/app/admin-api/server.js`
 
-#### PocketGamer Adapter (`lib/adapters/pocketgamer.ts`)
-- Uses Firecrawl API
-- Scrapes https://www.pocketgamer.com/super-snail/codes/
-- Trust weight: 0.7
+**Routes Added:**
+- `/api/chat/*` - Chat bot and history endpoints
+- `/api/snail/:guildId/*` - Super Snail screenshot analysis
+- `/api/:guildId/personality/*` - Guild personality configuration
+- `/api/stats/*` - Club statistics
+- `/api/diagnostics` - System diagnostics
 
-#### Snelp Adapter (`lib/adapters/snelp.ts`)
-- Uses Firecrawl API
-- Scrapes https://snelp.com/codes
-- Trust weight: 0.65
+**Implementation:**
+- Routes mounted with try/catch for graceful degradation
+- Console logs indicate which routes are successfully mounted
+- Routes that fail to load won't crash the server
 
-### 3. Deduplication Logic (`lib/dedupe.ts`)
-- Normalizes codes to uppercase
-- Merges codes from multiple sources
-- Applies trust-weight based verification:
-  - **Verified** if from high-trust source (Wiki, Discord, Twitter)
-  - **Verified** if combined weight ≥ 1.5 within 24 hours
-- Implements scope filtering: `active`, `past7`, `all`
+### 4. ✅ Missing Dependencies Added
+**File:** `/opt/slimy/app/admin-api/package.json`
 
-### 4. Main Aggregator (`lib/aggregator.ts`)
-- Orchestrates all adapters in parallel
-- Returns unified `AggregationResult` with codes and source metadata
-- Sorts codes by `last_seen_at` (newest first)
+**Dependencies Added:**
+- `multer@^1.4.5-lts.1` - File upload handling (snail routes)
+- `mime-types@^2.1.35` - MIME type detection (snail routes)
+- `zod@^3.22.4` - Schema validation (personality routes)
 
-### 5. API Endpoint (`app/api/codes/route.ts`)
-- Updated to use new aggregator
-- Supports `scope` query parameter
-- Cache-Control: 10 minutes with 24-hour stale-while-revalidate
-- Returns codes, sources metadata, scope, and count
+### 5. ✅ Supporting Files Created
+- `.dockerignore` - Excludes unnecessary files from Docker build
+- `.env.example` - Documents all required environment variables
 
-### 6. UI Components (`app/snail/codes/page.tsx`)
-- Enhanced with new features:
-  - **Verified badge** for high-confidence codes
-  - **Provenance drawer** showing all sources with confidence scores
-  - **Expires Soon badge** for codes expiring within 3 days
-  - **Source badges** for Discord, Reddit, Wiki, PocketGamer, Snelp
-  - **Improved search** across code, title, description, tags
-  - **Copy All** persistent button
-  - **Report** functionality for dead codes
+## Usage
 
-## 📋 GitHub Secrets Required
+### Development (Docker Compose)
 
-The following secrets must be configured in GitHub repository settings:
+```bash
+cd /opt/slimy/web
 
-- `DISCORD_TOKEN` — Discord bot token
-- `DISCORD_CLIENT_ID` — Discord application/client ID
-- `FIRECRAWL_API_KEY` — Firecrawl API key for scraping
+# Create .env file with required variables
+cat > .env << EOF
+SESSION_SECRET=your-secret-here
+DISCORD_CLIENT_ID=your-client-id
+DISCORD_CLIENT_SECRET=your-client-secret
+DISCORD_BOT_TOKEN=your-bot-token
+EOF
 
-## 🚀 Deployment Notes
+# Start services
+docker compose up -d
 
-### GitHub Actions Workflow
-A workflow file (`aggregate-codes-workflow.yml`) has been created but must be manually added to `.github/workflows/` due to permission restrictions. The workflow:
-- Runs every 10 minutes
-- Fetches codes from all sources
-- Creates JSON snapshots as artifacts
-- Logs warnings for failed/degraded sources
+# Check logs
+docker compose logs -f admin-api
+docker compose logs -f web
 
-### Environment Variables
-No additional environment variables are needed beyond the GitHub secrets listed above.
+# Test admin API
+curl http://localhost:3080/api/health
+```
 
-## 🧪 Testing Recommendations
+### Production (Systemd)
 
-1. **Unit Tests** (to be added):
-   - Test deduplication logic with various code formats
-   - Test verification rules with different trust weight combinations
-   - Test scope filtering edge cases
+If you prefer to run admin-api as a systemd service instead:
 
-2. **Integration Tests** (to be added):
-   - Mock adapter responses and test aggregation
-   - Test API endpoint with different scopes
-   - Test error handling for failed sources
+```bash
+# The admin-api can still run as systemd service
+# Update web docker-compose.yml to use external URL:
+# NEXT_PUBLIC_ADMIN_API_BASE=https://admin.slimyai.xyz
+```
 
-3. **Manual Testing**:
-   - Verify Discord bot has proper permissions
-   - Test Firecrawl API key validity
-   - Check UI rendering with real data
-   - Verify provenance drawer shows correct sources
+## Route Endpoints Now Available
 
-## 📊 Source Status Monitoring
+### Chat Routes
+- `POST /api/chat/bot` - Chat with bot (member+)
+- `GET /api/chat/:guildId/history` - Get chat history (member+)
 
-The API returns source metadata for each adapter:
-```json
-{
-  "sources": {
-    "discord": {
-      "source": "discord",
-      "status": "ok",
-      "lastFetch": "2025-11-01T15:48:00.000Z",
-      "itemCount": 5
-    },
-    "reddit": {
-      "source": "reddit",
-      "status": "ok",
-      "lastFetch": "2025-11-01T15:48:00.000Z",
-      "itemCount": 12
+### Snail Routes
+- `POST /api/snail/:guildId/analyze` - Analyze screenshots (member+)
+- `GET /api/snail/:guildId/stats` - Get user stats (member+)
+- `GET /api/snail/:guildId/analyze_help` - Get help text (member+)
+- `POST /api/snail/:guildId/calc` - Calculate tier costs (member+)
+- `GET /api/snail/:guildId/codes` - Get secret codes (member+)
+
+### Personality Routes
+- `GET /api/:guildId/personality/presets` - List presets (admin+)
+- `GET /api/:guildId/personality` - Get guild personality (admin+)
+- `PUT /api/:guildId/personality` - Update guild personality (admin+)
+- `POST /api/:guildId/personality/reset` - Reset to default (admin+)
+- `POST /api/:guildId/personality/test` - Test personality output (admin+)
+
+### Stats Routes
+- `GET /api/stats/summary` - Get club stats summary (requires STATS_SHEET_ID)
+
+### Diagnostics Routes
+- `GET /api/diagnostics` - System diagnostics (authenticated)
+
+## Next Steps
+
+### 1. Install Dependencies
+```bash
+cd /opt/slimy/app/admin-api
+npm install
+```
+
+### 2. Test Route Mounting
+```bash
+# Start the server and check logs
+node server.js
+
+# Look for mount messages:
+# [admin-api] Mounted /api/chat routes
+# [admin-api] Mounted /api/snail/:guildId routes
+# etc.
+```
+
+### 3. Verify External Dependencies
+Some routes require additional services:
+- **Chat/Snail routes:** Require `OPENAI_API_KEY`
+- **Stats routes:** Require `STATS_SHEET_ID` and Google Sheets API
+- **Personality routes:** Require database connectivity
+
+### 4. Update Caddy Configuration
+If using Caddy reverse proxy, ensure it routes `/api/*` to the admin-api service:
+
+```caddyfile
+admin.slimyai.xyz {
+    handle_path /api/* {
+        reverse_proxy localhost:3080
     }
-    // ... other sources
-  }
+    reverse_proxy localhost:3001
 }
 ```
 
-## 🔄 Next Steps
+## Troubleshooting
 
-1. Add the GitHub Actions workflow manually (requires `workflows` permission)
-2. Implement unit and integration tests
-3. Add monitoring/alerting for source failures
-4. Consider adding Twitter API v2 support when keys are available
-5. Implement MCP pilot if API/scrape methods prove unreliable
+### Routes Not Mounting
+Check server logs for error messages:
+```bash
+docker compose logs admin-api | grep "Failed to mount"
+```
 
-## 📝 Documentation
+Common issues:
+- Missing dependencies: Run `npm install` in admin-api directory
+- Missing middleware: Check that `src/middleware/auth.js` exists
+- Missing services: Some routes require external services (OpenAI, database)
 
-All planning documentation is available in:
-- `docs/codes/` — Architecture, specs, adapters, deduplication, UX, testing, operations
-- `docs/mcp/` — MCP optional pilot plan
-- `reports/codes/` — Work breakdown, Codex tasks, open questions
+### Docker Build Fails
+- Ensure `package.json` has all dependencies listed
+- Check that `Dockerfile` paths are correct
+- Verify Node.js version compatibility
+
+### Health Check Fails
+- Verify port 3080 is not already in use
+- Check that environment variables are set correctly
+- Review server logs for startup errors
+
+## Notes
+
+- Routes are mounted with error handling - if a route module fails to load, the server will continue running
+- The web app can use either internal Docker network URL (`http://admin-api:3080`) or external URL (`https://admin.slimyai.xyz`)
+- Data persistence is handled via Docker volumes
+- Environment variables can be set via `.env` file or docker-compose override files
+

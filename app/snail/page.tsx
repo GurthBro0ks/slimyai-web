@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { Image, BarChart3, Code, HelpCircle, Calculator, Clock } from "lucide-react";
-import { SnailTimeline } from "@/components/snail-timeline";
+import { LazySnailTimeline } from "@/components/lazy";
+import { Suspense } from "react";
+import { LoadingFallback } from "@/lib/lazy";
 
 export default function SnailPage() {
   const tools = [
@@ -61,7 +63,9 @@ export default function SnailPage() {
               Snail Timeline
             </h2>
             <Card className="p-6 h-[500px] overflow-y-auto rounded-2xl border border-emerald-500/30 bg-zinc-900/40 shadow-sm">
-              <SnailTimeline />
+              <Suspense fallback={<LoadingFallback height="400px" />}>
+                <LazySnailTimeline />
+              </Suspense>
             </Card>
           </div>
 

@@ -1,9 +1,20 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_API_BASE,
-});
+let openaiInstance: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openaiInstance) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.');
+    }
+    openaiInstance = new OpenAI({
+      apiKey,
+      baseURL: process.env.OPENAI_API_BASE,
+    });
+  }
+  return openaiInstance;
+}
 
 export async function createChatCompletion(
   messages: Array<{ role: string; content: string }>,
@@ -13,6 +24,7 @@ export async function createChatCompletion(
     maxTokens?: number;
   }
 ) {
+  const openai = getOpenAIClient();
   const response = await openai.chat.completions.create({
     model: options?.model || 'gpt-4',
     messages: messages as any,
@@ -32,6 +44,7 @@ export async function createStreamingChatCompletion(
     maxTokens?: number;
   }
 ) {
+  const openai = getOpenAIClient();
   const stream = await openai.chat.completions.create({
     model: options?.model || 'gpt-4',
     messages: messages as any,
@@ -43,4 +56,6 @@ export async function createStreamingChatCompletion(
   return stream;
 }
 
-export { openai };
+export function getOpenAI() {
+  return openaiInstance ? getOpenAIClient() : null;
+}
