@@ -49,6 +49,20 @@ services:
       retries: 8
       start_period: 20s
 
+  loopback1455:
+    image: python:3-alpine
+    command: ["python3", "-m", "http.server", "1455"]
+    ports:
+      - "1455:1455"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:1455 || exit 1"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - slimy-network
+
 
 volumes:
   postgres_data:
