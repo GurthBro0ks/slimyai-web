@@ -112,8 +112,6 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     scrollRestoration: true,
     typedRoutes: true,
-    // Enable SWC minification for better tree shaking
-    swcMinify: true,
   },
 
   // Production optimizations

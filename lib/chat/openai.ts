@@ -1,3 +1,6 @@
+import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
+import type { Stream } from 'openai/streaming';
+
 import { createChatCompletion, createStreamingChatCompletion } from '@/lib/openai-client';
 import { Message } from '@/types/chat';
 import { PersonalityMode, getPersonalityConfig } from '@/lib/personality-modes';
@@ -10,7 +13,7 @@ export interface ChatOptions {
 }
 
 export interface StreamingChatResult {
-  stream: ReadableStream;
+  stream: Stream<ChatCompletionChunk>;
   messageId: string;
 }
 

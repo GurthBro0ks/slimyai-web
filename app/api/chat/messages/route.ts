@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { apiClient } from '@/lib/api-client';
+
+interface ChatHistoryResponse {
+  messages: unknown[];
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Proxy to admin API chat history
-    const response = await apiClient.get(`/api/chat/${guildId}/history?limit=${limit}`);
+    const response = await apiClient.get<ChatHistoryResponse>(`/api/chat/${guildId}/history?limit=${limit}`);
 
     if (!response.ok) {
       return NextResponse.json(

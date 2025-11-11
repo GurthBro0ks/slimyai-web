@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth/context";
+
+import { requireAuth } from "@/lib/auth/server";
 import { chatStorage } from "@/lib/chat/storage";
 
 export const runtime = "nodejs";

@@ -1,5 +1,5 @@
 import { Code } from "@/lib/codes-aggregator";
-import { CodeSource, SourceConfig, SourceResult } from "./types";
+import { CodeSource, SourceConfig, SourceResult, SourceFactory } from "./types";
 
 /**
  * Default configuration for Snelp source
@@ -232,7 +232,7 @@ export class SnelpSource implements CodeSource {
       description: "Official Super Snail codes from Snelp API",
       url: process.env.NEXT_PUBLIC_SNELP_CODES_URL,
       rateLimit: "Unknown",
-      lastSuccessfulFetch: this.fetchStats.lastSuccessfulFetch,
+      lastSuccessfulFetch: this.fetchStats.lastSuccessfulFetch || undefined,
       totalFetches: this.fetchStats.totalFetches,
       successfulFetches: this.fetchStats.successfulFetches,
       failedFetches: this.fetchStats.failedFetches,

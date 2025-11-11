@@ -84,7 +84,7 @@ export function getAssetType(path: string): keyof typeof CDN_ASSET_TYPES | null 
   const extension = path.toLowerCase().substring(path.lastIndexOf('.'));
 
   for (const [type, config] of Object.entries(CDN_ASSET_TYPES)) {
-    if (config.extensions.includes(extension)) {
+    if ((config.extensions as readonly string[]).includes(extension)) {
       return type as keyof typeof CDN_ASSET_TYPES;
     }
   }

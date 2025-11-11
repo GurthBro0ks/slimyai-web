@@ -333,7 +333,3 @@ export class AdminApiClient {
 
 // Create and export default instance
 export const adminApiClient = new AdminApiClient();
-
-// Export types for backward compatibility
-export type { ApiError, ApiSuccess, ApiResponse };
-

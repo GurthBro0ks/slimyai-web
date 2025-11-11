@@ -41,7 +41,8 @@ function parseBuildManifest(buildDir: string): BundleInfo[] {
 
   // Parse pages and their chunks
   if (manifest.pages) {
-    Object.entries(manifest.pages).forEach(([page, chunks]: [string, string[]]) => {
+    const pageEntries = Object.entries(manifest.pages) as Array<[string, string[]]>;
+    pageEntries.forEach(([page, chunks]) => {
       chunks.forEach((chunk) => {
         const chunkPath = join(buildDir, '.next', chunk);
         if (existsSync(chunkPath)) {
@@ -215,4 +216,3 @@ if (require.main === module) {
 }
 
 export { analyzeBundleSizes, type BundleSizeConfig };
-

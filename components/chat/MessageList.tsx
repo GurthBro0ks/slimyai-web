@@ -5,7 +5,32 @@ import { chatStorage, ConversationSummary } from '@/lib/chat/storage';
 import { useAuth } from '@/lib/auth/context';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Clock, Trash2 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+
+const RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+const RELATIVE_TIME_DIVISIONS: Array<{ amount: number; unit: Intl.RelativeTimeFormatUnit }> = [
+  { amount: 60, unit: 'second' },
+  { amount: 60, unit: 'minute' },
+  { amount: 24, unit: 'hour' },
+  { amount: 7, unit: 'day' },
+  { amount: 4.34524, unit: 'week' },
+  { amount: 12, unit: 'month' },
+  { amount: Infinity, unit: 'year' },
+];
+
+function formatRelativeTime(input: number | string | Date): string {
+  const timestamp =
+    typeof input === 'number' ? input : typeof input === 'string' ? new Date(input).getTime() : input.getTime();
+  let duration = (timestamp - Date.now()) / 1000;
+
+  for (const division of RELATIVE_TIME_DIVISIONS) {
+    if (Math.abs(duration) < division.amount) {
+      return RELATIVE_TIME_FORMATTER.format(Math.round(duration), division.unit);
+    }
+    duration /= division.amount;
+  }
+
+  return RELATIVE_TIME_FORMATTER.format(Math.round(duration), 'year');
+}
 
 interface MessageListProps {
   onConversationSelect: (conversationId: string) => void;
@@ -131,7 +156,7 @@ export function MessageList({
                 </div>
                 <div className="flex items-center gap-1 mt-1 text-xs text-zinc-600">
                   <Clock className="h-3 w-3" />
-                  <span>{formatDistanceToNow(conversation.updatedAt, { addSuffix: true })}</span>
+                  <span>{formatRelativeTime(conversation.updatedAt)}</span>
                 </div>
               </div>
 

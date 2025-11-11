@@ -1,0 +1,35 @@
+=== /etc/hosts (top) ===
+127.0.0.1 localhost
+127.0.1.1   slimy-nuc2
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+=== Resolve localhost ===
+::1             localhost
+
+=== Listeners on 1455 ===
+No listeners on 1455
+
+=== lsof 1455 ===
+
+=== curl 127.0.0.1:1455 ===
+*   Trying 127.0.0.1:1455...
+* connect to 127.0.0.1 port 1455 from 127.0.0.1 port 51114 failed: Connection refused
+* Failed to connect to 127.0.0.1 port 1455 after 0 ms: Couldn't connect to server
+* Closing connection
+curl: (7) Failed to connect to 127.0.0.1 port 1455 after 0 ms: Couldn't connect to server
+curl failed
+
+=== Docker ports ===
+slimy-web  0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+slimy-db  0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+
+=== PM2 ===
+
+=== UFW (firewall) ===
+ufw status unavailable

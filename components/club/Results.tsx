@@ -213,3 +213,5 @@ export function Results({ analyses, onExport, onViewDetails, loading }: ResultsP
     </div>
   );
 }
+
+export default Results;

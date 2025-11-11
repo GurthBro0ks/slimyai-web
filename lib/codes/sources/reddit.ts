@@ -1,5 +1,5 @@
 import { Code } from "@/lib/codes-aggregator";
-import { CodeSource, SourceConfig, SourceResult } from "./types";
+import { CodeSource, SourceConfig, SourceResult, SourceFactory } from "./types";
 
 /**
  * Default configuration for Reddit source
@@ -289,7 +289,7 @@ export class RedditSource implements CodeSource {
       description: "Community-submitted codes from Reddit r/SuperSnailGame",
       url: "https://www.reddit.com/r/SuperSnailGame/search.json?q=code",
       rateLimit: "Reddit API rate limits apply",
-      lastSuccessfulFetch: this.fetchStats.lastSuccessfulFetch,
+      lastSuccessfulFetch: this.fetchStats.lastSuccessfulFetch || undefined,
       totalFetches: this.fetchStats.totalFetches,
       successfulFetches: this.fetchStats.successfulFetches,
       failedFetches: this.fetchStats.failedFetches,

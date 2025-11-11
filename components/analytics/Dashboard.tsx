@@ -457,3 +457,5 @@ export function Dashboard({ className }: DashboardProps) {
     </div>
   );
 }
+
+export default Dashboard;

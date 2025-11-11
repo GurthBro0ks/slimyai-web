@@ -202,7 +202,7 @@ export class ChatStorage {
 
       const conversationId = await this.createConversation(
         userId,
-        title,
+        title ?? undefined,
         session.currentMode
       );
 

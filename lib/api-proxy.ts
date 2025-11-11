@@ -59,8 +59,10 @@ export async function proxyToAdminApi<T = unknown>(
     case 'DELETE':
       return adminApiClient.delete<T>(path, { headers: options?.headers as Record<string, string> });
     default:
-      return adminApiClient.request<T>(method, path, {
-        ...options,
+      return adminApiClient.request<T>(path, {
+        ...(options || {}),
+        method,
+        headers: options?.headers as Record<string, string>,
         body: data ? JSON.stringify(data) : undefined,
       });
   }

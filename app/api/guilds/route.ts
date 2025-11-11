@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { apiClient } from "@/lib/api-client";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 
 export const dynamic = "force-dynamic"; // no-store
 
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic"; // no-store
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const session = await auth();
+    const session = await auth(request);
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", code: "UNAUTHORIZED" },
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await auth();
+    const session = await auth(request);
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", code: "UNAUTHORIZED" },

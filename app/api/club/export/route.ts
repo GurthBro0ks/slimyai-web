@@ -75,10 +75,12 @@ export async function POST(request: NextRequest) {
     };
 
     // Placeholder response - would normally create actual spreadsheet
+    const spreadsheetId = `club-analytics-${guildId}-${Date.now()}`;
+
     const result = {
       success: true,
-      spreadsheetId: `club-analytics-${guildId}-${Date.now()}`,
-      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${exportData.spreadsheetId}`,
+      spreadsheetId,
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
       exported: {
         members: 25,
         stats: 150,

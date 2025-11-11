@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { apiClient } from "@/lib/api-client";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 
 export const runtime = "nodejs";
 
@@ -13,7 +14,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = await auth(request);
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", code: "UNAUTHORIZED" },
@@ -61,7 +62,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = await auth(request);
     if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", code: "UNAUTHORIZED" },

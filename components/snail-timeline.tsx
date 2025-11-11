@@ -88,3 +88,5 @@ export function SnailTimeline() {
     </div>
   );
 }
+
+export default SnailTimeline;

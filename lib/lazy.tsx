@@ -46,15 +46,14 @@ export function lazyLoad<T extends ComponentType<any>>(
   options: {
     loading?: ComponentType<any>;
     ssr?: boolean;
-    suspense?: boolean;
   } = {}
 ): T {
-  const { loading = LoadingSpinner, ssr = false, suspense = false } = options;
+  const { loading = LoadingSpinner, ssr = false } = options;
+  const LoadingComponent = loading;
 
   return dynamic(importFunc, {
-    loading,
+    loading: LoadingComponent ? () => <LoadingComponent /> : undefined,
     ssr,
-    suspense,
   }) as T;
 }
 

@@ -66,7 +66,6 @@ export class CodesCache {
         url: this.config.url,
         socket: {
           connectTimeout: 5000,
-          lazyConnect: true,
         },
       });
 
