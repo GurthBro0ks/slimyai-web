@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: slimy-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: slimy_production
+      POSTGRES_USER: slimy
+      POSTGRES_PASSWORD: SlimySecure2024!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slimy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - slimy-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: slimy-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - slimy-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 2s
+      retries: 8
+      start_period: 20s
+
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  slimy-network:
+    driver: bridge
