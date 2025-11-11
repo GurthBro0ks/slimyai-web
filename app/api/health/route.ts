@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
 
-export const revalidate = 60; // s-maxage=60
+export const dynamic = "force-static";
+export const runtime = "nodejs";
 
-export async function GET() {
-  return NextResponse.json(
-    {
-      ok: true,
-      ts: new Date().toISOString(),
-      env: process.env.NODE_ENV,
-    },
-    {
-      headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
-      },
-    }
-  );
+export function GET() {
+  const adminBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE || "";
+
+  return NextResponse.json({
+    ok: true,
+    ts: Date.now(),
+    env: process.env.NODE_ENV,
+    adminApiBaseConfigured: adminBase.length > 0,
+  });
 }
