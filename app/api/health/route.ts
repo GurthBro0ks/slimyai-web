@@ -4,7 +4,10 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export function GET() {
-  const adminBase = process.env.NEXT_PUBLIC_ADMIN_API_BASE || "";
+  const adminBase =
+    process.env["NEXT_PUBLIC_ADMIN_API_BASE"] ||
+    process.env["ADMIN_API_BASE"] ||
+    "";
 
   return NextResponse.json({
     ok: true,
