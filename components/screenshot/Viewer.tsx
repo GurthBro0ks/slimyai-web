@@ -8,7 +8,7 @@ import { Callout } from "@/components/ui/callout";
 import {
   Eye,
   Download,
-  Compare,
+  GitCompare,
   Search,
   Filter,
   ZoomIn,
@@ -136,7 +136,7 @@ export function ScreenshotViewer({
               onClick={handleCompare}
               className="bg-blue-500 hover:bg-blue-600"
             >
-              <Compare className="h-4 w-4 mr-2" />
+              <GitCompare className="h-4 w-4 mr-2" />
               Compare Selected
             </Button>
           )}
@@ -159,7 +159,7 @@ export function ScreenshotViewer({
               variant="outline"
               onClick={() => setCompareMode(true)}
             >
-              <Compare className="h-4 w-4 mr-2" />
+              <GitCompare className="h-4 w-4 mr-2" />
               Compare Mode
             </Button>
           )}
