@@ -108,126 +108,126 @@ export function useChat(conversationId?: string) {
       updatedAt: Date.now(),
     }));
 
-    // Retry logic for network/API failures
-    let response;
-    let retryCount = 0;
-    const maxRetries = 2;
+    try {
+      // Retry logic for network/API failures
+      let response;
+      let retryCount = 0;
+      const maxRetries = 2;
 
-    while (retryCount <= maxRetries) {
-      try {
-        response = await fetch('/api/chat/message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: content,
-            personalityMode: session.currentMode,
-            conversationHistory: session.messages.filter(msg => msg.id !== placeholderMessage.id),
-            userId: user?.id,
-          }),
-        });
-        break; // Success, exit retry loop
-      } catch (networkError) {
-        retryCount++;
-        if (retryCount <= maxRetries) {
-          console.warn(`Network request failed (attempt ${retryCount}/${maxRetries + 1}), retrying...`);
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-          continue;
-        }
-        throw networkError;
-      }
-    }
-
-    if (!response!.ok) {
-      const errorData = await response!.json();
-
-      // Don't retry on rate limit or auth errors
-      if (errorData.code === 'RATE_LIMIT_EXCEEDED' || errorData.code === 'OPENAI_AUTH_ERROR') {
-        throw new Error(errorData.error || 'Request failed');
-      }
-
-      // Retry on other errors
-      if (retryCount < maxRetries && errorData.code !== 'INVALID_MESSAGE') {
-        console.warn(`API request failed with ${errorData.code}, retrying...`);
-        // Could implement retry logic here for specific error codes
-      }
-
-      throw new Error(errorData.error || 'Failed to send message');
-    }
-
-    // Handle streaming response
-    const reader = response!.body?.getReader();
-    const decoder = new TextDecoder();
-
-    if (!reader) {
-      throw new Error('No response stream available');
-    }
-
-    let fullContent = '';
-    let isComplete = false;
-
-    while (!isComplete) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        isComplete = true;
-        break;
-      }
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n').filter(line => line.trim());
-
-      for (const line of lines) {
+      while (retryCount <= maxRetries) {
         try {
-          const data = JSON.parse(line);
-
-          if (data.type === 'chunk') {
-            fullContent += data.content;
-
-            // Update the assistant message with streaming content
-            setSession(prev => ({
-              ...prev,
-              messages: prev.messages.map(msg =>
-                msg.id === assistantMessageId
-                  ? { ...msg, content: fullContent }
-                  : msg
-              ),
-              updatedAt: Date.now(),
-            }));
-          } else if (data.type === 'complete') {
-            // Update with final message
-            setSession(prev => ({
-              ...prev,
-              messages: prev.messages.map(msg =>
-                msg.id === assistantMessageId
-                  ? data.message
-                  : msg
-              ),
-              updatedAt: Date.now(),
-            }));
-
-            // Save assistant message to database if we have a conversation
-            if (conversationIdToUse && user) {
-              try {
-                await chatStorage.saveMessage(conversationIdToUse, user.id, data.message);
-              } catch (error) {
-                console.error('Failed to save assistant message:', error);
-                // Continue even if persistence fails
-              }
-            }
-
-            isComplete = true;
-            break;
-          } else if (data.type === 'error') {
-            throw new Error(data.error || 'Streaming error occurred');
+          response = await fetch('/api/chat/message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: content,
+              personalityMode: session.currentMode,
+              conversationHistory: session.messages.filter(msg => msg.id !== placeholderMessage.id),
+              userId: user?.id,
+            }),
+          });
+          break; // Success, exit retry loop
+        } catch (networkError) {
+          retryCount++;
+          if (retryCount <= maxRetries) {
+            console.warn(`Network request failed (attempt ${retryCount}/${maxRetries + 1}), retrying...`);
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+            continue;
           }
-        } catch (parseError) {
-          console.error('Failed to parse streaming data:', parseError, line);
+          throw networkError;
         }
       }
-    }
 
+      if (!response!.ok) {
+        const errorData = await response!.json();
+
+        // Don't retry on rate limit or auth errors
+        if (errorData.code === 'RATE_LIMIT_EXCEEDED' || errorData.code === 'OPENAI_AUTH_ERROR') {
+          throw new Error(errorData.error || 'Request failed');
+        }
+
+        // Retry on other errors
+        if (retryCount < maxRetries && errorData.code !== 'INVALID_MESSAGE') {
+          console.warn(`API request failed with ${errorData.code}, retrying...`);
+          // Could implement retry logic here for specific error codes
+        }
+
+        throw new Error(errorData.error || 'Failed to send message');
+      }
+
+      // Handle streaming response
+      const reader = response!.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('No response stream available');
+      }
+
+      let fullContent = '';
+      let isComplete = false;
+
+      while (!isComplete) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          isComplete = true;
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line);
+
+            if (data.type === 'chunk') {
+              fullContent += data.content;
+
+              // Update the assistant message with streaming content
+              setSession(prev => ({
+                ...prev,
+                messages: prev.messages.map(msg =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ),
+                updatedAt: Date.now(),
+              }));
+            } else if (data.type === 'complete') {
+              // Update with final message
+              setSession(prev => ({
+                ...prev,
+                messages: prev.messages.map(msg =>
+                  msg.id === assistantMessageId
+                    ? data.message
+                    : msg
+                ),
+                updatedAt: Date.now(),
+              }));
+
+              // Save assistant message to database if we have a conversation
+              if (conversationIdToUse && user) {
+                try {
+                  await chatStorage.saveMessage(conversationIdToUse, user.id, data.message);
+                } catch (error) {
+                  console.error('Failed to save assistant message:', error);
+                  // Continue even if persistence fails
+                }
+              }
+
+              isComplete = true;
+              break;
+            } else if (data.type === 'error') {
+              throw new Error(data.error || 'Streaming error occurred');
+            }
+          } catch (parseError) {
+            console.error('Failed to parse streaming data:', parseError, line);
+          }
+        }
+      }
     } catch (err: any) {
       console.error('Send message error:', err);
 
