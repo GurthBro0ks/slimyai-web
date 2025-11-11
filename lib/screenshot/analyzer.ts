@@ -340,5 +340,17 @@ export function getSupportedScreenshotTypes(): ScreenshotType[] {
  * Validate screenshot type
  */
 export function isValidScreenshotType(type: string): type is ScreenshotType {
-  return type in ANALYSIS_TEMPLATES;
+  return Object.prototype.hasOwnProperty.call(ANALYSIS_TEMPLATES, type);
+}
+
+/**
+ * Basic validation for image URLs
+ */
+export function validateImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }

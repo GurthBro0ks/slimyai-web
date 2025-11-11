@@ -7,7 +7,8 @@ import {
   validateImageUrl,
   type ScreenshotAnalysisResult,
   type ScreenshotType,
-  isValidScreenshotType
+  isValidScreenshotType,
+  getSupportedScreenshotTypes
 } from '@/lib/screenshot/analyzer';
 
 // TODO: Import database client when implemented
@@ -18,7 +19,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const screenshots = formData.getAll('screenshots') as File[];
     const imageUrls = formData.getAll('imageUrls') as string[];
-    const screenshotType = formData.get('type') as string;
+    const screenshotTypeValue = formData.get('type');
+    const screenshotType = typeof screenshotTypeValue === 'string' ? screenshotTypeValue : null;
     const userId = formData.get('userId') as string;
     const analyze = formData.get('analyze') === 'true';
     const options = JSON.parse(formData.get('options') as string || '{}');
@@ -38,11 +40,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (screenshotType && !isValidScreenshotType(screenshotType)) {
+    const supportedTypes = getSupportedScreenshotTypes();
+
+    let normalizedScreenshotType: ScreenshotType | undefined;
+
+    if (screenshotType) {
+      if (!isValidScreenshotType(screenshotType)) {
       return NextResponse.json(
-        { error: `Invalid screenshot type. Supported types: ${Object.keys(require('@/lib/screenshot/analyzer')).filter(k => k.endsWith('Templates')).join(', ')}` },
+        { error: `Invalid screenshot type. Supported types: ${supportedTypes.join(', ')}` },
         { status: 400 }
       );
+    }
+      normalizedScreenshotType = screenshotType;
     }
 
     const allImageUrls: string[] = [...imageUrls];
@@ -73,8 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate all image URLs
-    const validationPromises = allImageUrls.map(url => validateImageUrl(url));
-    const validationResults = await Promise.all(validationPromises);
+    const validationResults = allImageUrls.map(url => validateImageUrl(url));
 
     const validUrls = allImageUrls.filter((_, index) => validationResults[index]);
     const invalidUrls = allImageUrls.filter((_, index) => !validationResults[index]);
@@ -88,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     let analysisResults: ScreenshotAnalysisResult[] = [];
     const analysisOptions = {
-      type: screenshotType as ScreenshotType,
+      type: normalizedScreenshotType,
       ...options
     };
 
@@ -124,7 +132,7 @@ export async function POST(request: NextRequest) {
         averageConfidence: analysisResults.length > 0
           ? analysisResults.reduce((sum, r) => sum + r.metadata.confidence, 0) / analysisResults.length
           : 0,
-        screenshotType: screenshotType || 'custom'
+        screenshotType: normalizedScreenshotType || 'custom'
       },
       warnings: invalidUrls.length > 0 ? [`${invalidUrls.length} image(s) could not be accessed`] : []
     };
@@ -145,7 +153,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
-    const type = searchParams.get('type') as ScreenshotType;
+    const typeParam = searchParams.get('type');
+    let type: ScreenshotType | undefined;
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
     const search = searchParams.get('search');
@@ -158,11 +167,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (type && !isValidScreenshotType(type)) {
+    if (typeParam) {
+      if (!isValidScreenshotType(typeParam)) {
       return NextResponse.json(
         { error: 'Invalid screenshot type' },
         { status: 400 }
       );
+    }
+      type = typeParam;
     }
 
     // TODO: Retrieve results from database with filtering
