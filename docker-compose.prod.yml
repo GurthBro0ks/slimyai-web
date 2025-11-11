@@ -63,6 +63,15 @@ services:
     networks:
       - slimy-network
 
+  web-check:
+    build:
+      context: .
+      target: builder
+    command: sh -lc "pnpm tsc --noEmit && pnpm exec eslint ."
+    profiles: ["dev"]
+    networks:
+      - slimy-network
+
 
 volumes:
   postgres_data:
