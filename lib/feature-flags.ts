@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Feature Flags System
  * Guild-scoped configuration for themes and experiments
