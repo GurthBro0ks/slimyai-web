@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 let openaiInstance: OpenAI | null = null;
 
-function getOpenAIClient(): OpenAI {
+export function getOpenAI(): OpenAI {
   if (!openaiInstance) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -13,8 +13,11 @@ function getOpenAIClient(): OpenAI {
       baseURL: process.env.OPENAI_API_BASE,
     });
   }
+
   return openaiInstance;
 }
+
+export const getOpenAIClient = getOpenAI;
 
 export async function createChatCompletion(
   messages: Array<{ role: string; content: string }>,
@@ -24,7 +27,7 @@ export async function createChatCompletion(
     maxTokens?: number;
   }
 ) {
-  const openai = getOpenAIClient();
+  const openai = getOpenAI();
   const response = await openai.chat.completions.create({
     model: options?.model || 'gpt-4',
     messages: messages as any,
@@ -44,7 +47,7 @@ export async function createStreamingChatCompletion(
     maxTokens?: number;
   }
 ) {
-  const openai = getOpenAIClient();
+  const openai = getOpenAI();
   const stream = await openai.chat.completions.create({
     model: options?.model || 'gpt-4',
     messages: messages as any,
@@ -54,8 +57,4 @@ export async function createStreamingChatCompletion(
   });
 
   return stream;
-}
-
-export function getOpenAI() {
-  return openaiInstance ? getOpenAIClient() : null;
 }
