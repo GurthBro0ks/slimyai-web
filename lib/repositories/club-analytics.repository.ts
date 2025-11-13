@@ -20,7 +20,7 @@ export interface CreateClubAnalysisInput {
   }>;
   metrics: Array<{
     name: string;
-    value: any;
+    value: string | number | boolean | Record<string, unknown>;
     unit?: string;
     category: string;
   }>;

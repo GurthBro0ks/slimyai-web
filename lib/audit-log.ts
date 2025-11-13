@@ -271,19 +271,18 @@ export function auditLog(
 /**
  * Middleware to automatically log admin actions
  */
-export function withAuditLog(
+export function withAuditLog<TContext = unknown>(
   action: AuditAction,
   resource: string,
   options?: {
-    extractResourceId?: (request: Request, context?: any) => string | undefined;
-    extractChanges?: (request: Request, context?: any) => Promise<AuditChanges | undefined>;
+    extractResourceId?: (request: Request, context?: TContext) => string | undefined;
+    extractChanges?: (request: Request, context?: TContext) => Promise<AuditChanges | undefined>;
   }
 ) {
-  return function <T extends (...args: any[]) => Promise<Response>>(
-    handler: T
-  ): T {
-    return (async (...args: any[]) => {
-      const [request, context] = args;
+  return function <THandler extends (request: Request, context?: TContext) => Promise<Response>>(
+    handler: THandler
+  ): THandler {
+    return (async (request: Request, context?: TContext) => {
       const logger = getAuditLogger();
       const requestMetadata = AuditLogger.getRequestMetadata(request);
 
@@ -299,7 +298,7 @@ export function withAuditLog(
 
       try {
         // Execute the handler
-        const response = await handler(...args);
+        const response = await handler(request, context);
 
         // Log successful action
         logger.logSuccess(userId, action, resource, {
