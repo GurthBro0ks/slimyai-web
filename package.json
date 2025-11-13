@@ -35,7 +35,7 @@
     "openai": "^6.7.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "redis": "^4.6.8",
+    "redis": "^5.9.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
     "remark-frontmatter": "^5.0.0",
