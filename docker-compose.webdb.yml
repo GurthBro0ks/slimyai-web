@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: slimy_production
+      POSTGRES_USER: slimy
+      POSTGRES_PASSWORD: slimy
+    volumes: [ "pgdata:/var/lib/postgresql/data" ]
+    ports: [ "5432:5432" ]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U slimy"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes: { pgdata: {} }

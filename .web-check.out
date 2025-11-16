@@ -1,0 +1,407 @@
+Building web-check
+Step 1/17 : FROM node:22-alpine AS base
+ ---> d14f4a9e34c6
+Step 2/17 : RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
+ ---> Using cache
+ ---> 5ce35ed257f6
+
+Step 3/17 : FROM base AS deps
+ ---> 5ce35ed257f6
+Step 4/17 : WORKDIR /app
+ ---> Using cache
+ ---> f4c62fe2e0bf
+Step 5/17 : COPY package.json pnpm-lock.yaml ./
+ ---> 56eb71482a6e
+Step 6/17 : RUN pnpm install --no-frozen-lockfile
+ ---> Running in b2ba3a53b72d
+Progress: resolved 1, reused 0, downloaded 0, added 0
+
+   ╭───────────────────────────────────────────────╮
+   │                                               │
+   │     Update available! 10.20.0 → 10.21.0.      │
+   │     Changelog: https://pnpm.io/v/10.21.0      │
+   │   To update, run: corepack use pnpm@10.21.0   │
+   │                                               │
+   ╰───────────────────────────────────────────────╯
+
+Progress: resolved 37, reused 0, downloaded 35, added 0
+Progress: resolved 41, reused 0, downloaded 41, added 0
+Progress: resolved 41, reused 0, downloaded 42, added 0
+Progress: resolved 185, reused 0, downloaded 184, added 0
+Progress: resolved 301, reused 0, downloaded 287, added 0
+Progress: resolved 369, reused 0, downloaded 319, added 0
+Progress: resolved 427, reused 0, downloaded 344, added 0
+Progress: resolved 523, reused 0, downloaded 441, added 0
+Progress: resolved 613, reused 0, downloaded 510, added 0
+Progress: resolved 712, reused 0, downloaded 601, added 0
+Progress: resolved 812, reused 0, downloaded 705, added 0
+Packages: +700
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 812, reused 0, downloaded 705, added 700, done
+
+dependencies:
++ @next/mdx 16.0.1
++ @radix-ui/react-tooltip 1.2.8
++ gray-matter 4.0.3
++ next 16.0.1
++ next-mdx-remote 5.0.0
++ openai 6.7.0
++ react 19.2.0
++ react-dom 19.2.0
++ redis 4.7.1 (5.9.0 is available)
++ rehype-autolink-headings 7.1.0
++ rehype-slug 6.0.0
++ remark-frontmatter 5.0.0
++ remark-gfm 4.0.1
+
+devDependencies:
++ @playwright/test 1.56.1
++ @radix-ui/react-slot 1.2.3
++ @tailwindcss/postcss 4.1.16
++ @testing-library/jest-dom 6.9.1
++ @testing-library/react 16.3.0
++ @testing-library/user-event 14.6.1
++ @types/cookies 0.9.2
++ @types/mdx 2.0.13
++ @types/node 20.19.24
++ @types/react 19.2.2
++ @types/react-dom 19.2.2
++ @vitejs/plugin-react 5.1.0
++ @vitest/coverage-v8 4.0.8
++ @vitest/ui 4.0.8
++ class-variance-authority 0.7.1
++ clsx 2.1.1
++ eslint 9.38.0
++ eslint-config-next 16.0.1
++ globals 16.5.0
++ jsdom 27.1.0
++ lucide-react 0.548.0
++ next-sitemap 4.2.3
++ tailwind-merge 3.3.1
++ tailwindcss 4.1.16
++ tailwindcss-animate 1.0.7
++ tsx 4.20.6
++ typescript 5.9.3
++ vitest 4.0.8
++ webpack-bundle-analyzer 4.10.2
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild, sharp, unrs-resolver.                      │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 15.4s using pnpm v10.20.0
+ ---> Removed intermediate container b2ba3a53b72d
+ ---> cdcba96c2cc3
+
+Step 7/17 : FROM base AS builder
+ ---> 5ce35ed257f6
+Step 8/17 : WORKDIR /app
+ ---> Using cache
+ ---> f4c62fe2e0bf
+Step 9/17 : COPY --from=deps /app/node_modules ./node_modules
+ ---> 5c4012e41d65
+Step 10/17 : COPY . .
+ ---> fbf3289488bc
+Step 11/17 : ARG NEXT_PUBLIC_ADMIN_API_BASE
+ ---> Running in 8095315b1b40
+ ---> Removed intermediate container 8095315b1b40
+ ---> 171b639aea1e
+Step 12/17 : ARG NEXT_PUBLIC_SNELP_CODES_URL
+ ---> Running in 1e8e4317ce52
+ ---> Removed intermediate container 1e8e4317ce52
+ ---> 9f20f3efa784
+Step 13/17 : ARG NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+ ---> Running in b802b07d295e
+ ---> Removed intermediate container b802b07d295e
+ ---> 77402db66072
+Step 14/17 : ENV NEXT_PUBLIC_ADMIN_API_BASE=$NEXT_PUBLIC_ADMIN_API_BASE
+ ---> Running in 704e7a62f45a
+ ---> Removed intermediate container 704e7a62f45a
+ ---> 9b354e2538ff
+Step 15/17 : ENV NEXT_PUBLIC_SNELP_CODES_URL=$NEXT_PUBLIC_SNELP_CODES_URL
+ ---> Running in 32d7405b8dbb
+ ---> Removed intermediate container 32d7405b8dbb
+ ---> 7f9bed4261ef
+Step 16/17 : ENV NEXT_PUBLIC_PLAUSIBLE_DOMAIN=$NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+ ---> Running in 41fcb421cae3
+ ---> Removed intermediate container 41fcb421cae3
+ ---> 029d64430d12
+Step 17/17 : RUN pnpm build
+ ---> Running in 1967e6d05f99
+
+> slimyai-web@0.1.0 build /app
+> next build
+
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.production
+
+[91m ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[0m   Creating an optimized production build ...
+ ✓ Compiled successfully in 27.9s
+   Running TypeScript ...
+   Collecting page data ...
+[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m ⚠ Using edge runtime on a page currently disables static generation for that page
+[0m   Generating static pages (0/35) ...
+[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m[91m[AdminApiClient] NEXT_PUBLIC_ADMIN_API_BASE not configured
+[0m   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+[ApiClient] GET /api/diag (attempt 1/4)
+   Generating static pages (26/35) 
+ ✓ Generating static pages (35/35) in 1870.7ms
+   Finalizing page optimization ...
+
+Route (app)                            Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin/flags
+├ ○ /analytics
+├ ƒ /api/auth/me
+├ ƒ /api/chat/bot
+├ ƒ /api/chat/conversations
+├ ƒ /api/chat/message
+├ ƒ /api/chat/messages
+├ ƒ /api/chat/users
+├ ƒ /api/club/analyze
+├ ƒ /api/club/export
+├ ƒ /api/club/upload
+├ ƒ /api/codes
+├ ƒ /api/codes/health
+├ ƒ /api/codes/report
+├ ƒ /api/diag
+├ ƒ /api/guilds
+├ ƒ /api/guilds/[id]
+├ ƒ /api/guilds/[id]/flags
+├ ƒ /api/guilds/[id]/members
+├ ƒ /api/guilds/[id]/members/[userId]
+├ ƒ /api/guilds/[id]/members/bulk
+├ ƒ /api/guilds/[id]/settings
+├ ƒ /api/health
+├ ƒ /api/local-codes
+├ ƒ /api/og/stats
+├ ƒ /api/screenshot
+├ ○ /api/snail/history                         1m      1y
+├ ƒ /api/stats
+├ ƒ /api/stats/events/stream
+├ ƒ /api/usage
+├ ○ /chat
+├ ○ /club
+├ ○ /docs
+├ ● /docs/[slug]
+│ ├ /docs/getting-started
+│ ├ /docs/snail-tools
+│ └ /docs/club-analytics
+├ ○ /features
+├ ○ /guilds
+├ ƒ /public-stats/[guildId]
+├ ○ /snail
+├ ○ /snail/codes
+└ ○ /status
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> slimyai-web@0.1.0 postbuild /app
+> tsx scripts/postbuild-validate.ts && tsx scripts/check-bundle-size.ts
+
+
+📋 Post-build validation:
+✅ All checks passed
+📦 Analyzing bundle sizes...
+
+Configuration:
+  Max initial bundle: 1000KB
+  Max route chunk: 500KB
+  Max total bundle: 3000KB
+  Warn threshold: 80%
+
+📊 Bundle Size Summary:
+  Initial bundle: 0KB
+  Total bundles: 0
+  Largest chunk: 0KB
+
+✅ Bundle size checks passed!
+
+ ---> Removed intermediate container 1967e6d05f99
+ ---> 827c32980755
+
+Successfully built 827c32980755
+Successfully tagged slimyai-web_web-check:latest
+Image for service web-check was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Creating slimyai-web_web-check_run ... 
+Creating slimyai-web_web-check_run ... done
+components/analytics/Dashboard.test.tsx(6,1): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(8,10): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(14,41): error TS2694: Namespace 'global.jest' has no exported member 'Mocked'.
+components/analytics/Dashboard.test.tsx(16,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(17,3): error TS2304: Cannot find name 'beforeEach'.
+components/analytics/Dashboard.test.tsx(18,5): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(21,34): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(22,34): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(25,20): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(28,3): error TS2304: Cannot find name 'afterEach'.
+components/analytics/Dashboard.test.tsx(29,5): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(32,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(37,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(38,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(41,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(78,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(79,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(80,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(81,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(85,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(86,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(87,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(88,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(91,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(112,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(119,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(122,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(139,27): error TS2694: Namespace 'global.jest' has no exported member 'Mock'.
+components/analytics/Dashboard.test.tsx(145,31): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(149,14): error TS2708: Cannot use namespace 'jest' as a value.
+components/analytics/Dashboard.test.tsx(156,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(163,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(164,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(165,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(168,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(177,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(178,7): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(185,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(188,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(195,5): error TS2304: Cannot find name 'expect'.
+components/analytics/Dashboard.test.tsx(198,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+components/analytics/Dashboard.test.tsx(214,7): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(7,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(10,3): error TS2304: Cannot find name 'beforeEach'.
+lib/api-client.test.ts(14,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(15,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(18,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(19,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(22,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(24,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(25,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(28,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(31,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(35,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(36,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(36,20): error TS2339: Property 'data' does not exist on type 'ApiResponse<unknown>'.
+  Property 'data' does not exist on type 'ApiError'.
+lib/api-client.test.ts(36,42): error TS2339: Property 'data' does not exist on type 'ApiResponse<unknown>'.
+  Property 'data' does not exist on type 'ApiError'.
+lib/api-client.test.ts(39,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(42,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(43,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(44,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(44,19): error TS2339: Property 'data' does not exist on type 'ApiResponse<unknown>'.
+  Property 'data' does not exist on type 'ApiError'.
+lib/api-client.test.ts(47,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(50,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(51,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(51,19): error TS2339: Property 'code' does not exist on type 'ApiResponse<unknown>'.
+  Property 'code' does not exist on type 'ApiSuccess<unknown>'.
+lib/api-client.test.ts(54,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(56,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(57,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(57,19): error TS2339: Property 'code' does not exist on type 'ApiResponse<unknown>'.
+  Property 'code' does not exist on type 'ApiSuccess<unknown>'.
+lib/api-client.test.ts(60,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(68,5): error TS2304: Cannot find name 'expect'.
+lib/api-client.test.ts(71,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+lib/api-client.test.ts(79,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(6,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(7,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(11,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(12,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(15,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(17,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(20,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(23,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(26,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(29,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(32,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(35,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(38,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(40,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(43,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(46,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(49,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(58,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(61,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(68,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(69,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(72,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(75,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(79,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(82,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(90,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(91,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(94,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(98,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(99,5): error TS2304: Cannot find name 'expect'.
+tests/components/button.test.tsx(102,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/button.test.tsx(106,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(13,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(28,3): error TS2304: Cannot find name 'beforeEach'.
+tests/components/message-bubble.test.tsx(32,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(36,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(40,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(44,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(45,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(48,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(52,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(56,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(60,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(61,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(64,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(75,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(78,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(82,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(83,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(87,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(90,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(97,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(98,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(101,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(107,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(108,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(114,7): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(115,7): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(119,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(128,7): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(135,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(144,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(147,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(155,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(158,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(168,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(172,5): error TS2304: Cannot find name 'expect'.
+tests/components/message-bubble.test.tsx(175,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/message-bubble.test.tsx(179,5): error TS2304: Cannot find name 'expect'.
+tests/unit/codes-aggregator.test.ts(385,40): error TS2345: Argument of type '{ cache: { enabled: boolean; }; }' is not assignable to parameter of type 'Partial<AggregatorConfig>'.
+  Types of property 'cache' are incompatible.
+    Type '{ enabled: boolean; }' is missing the following properties from type '{ enabled: boolean; ttl: number; staleWhileRevalidate: boolean; staleTtl: number; }': ttl, staleWhileRevalidate, staleTtl
+tests/unit/codes-deduplication.test.ts(4,18): error TS2304: Cannot find name 'Code'.
+tests/unit/codes-deduplication.test.ts(37,3): error TS2304: Cannot find name 'beforeEach'.
+tests/unit/rate-limiter.test.ts(12,5): error TS2698: Spread types may only be created from object types.
+tests/unit/rate-limiter.test.ts(37,3): error TS2304: Cannot find name 'beforeEach'.
+2
