@@ -1,11 +1,11 @@
 # Version Snapshot — slimyai-web
 
-> Generated: 2026-04-05T15:04:18Z | Host: slimy-nuc2
+> Generated: 2026-04-05T16:34:03Z | Host: slimy-nuc2
 
 ## Git State
 - **Branch:** `fix/runtime-envs-check-2025-11-11-nuc2-snapshot`
-- **HEAD:** `1c87d78`
-- **Last commit:** `2025-11-16` — `chore(web): NUC2 runtime envs snapshot (2025-11-14)`
+- **HEAD:** `4265174`
+- **Last commit:** `2026-04-05` — `docs: auto-sync project docs from slimy-nuc2 2026-04-05`
 - **Remote:** `git@github.com:GurthBro0ks/slimyai-web.git`
 - **Dirty:** NO
 
